@@ -1,2 +1,1 @@
-Youtube link for video pitch:
-https://youtu.be/AOV2qNkeUTc
+YouTube link for video pitch: https://youtu.be/tV8orLYLfi4
