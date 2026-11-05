@@ -19,7 +19,7 @@ repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    g++ curl ca-certificates tar unzip perl
+    g++ curl ca-certificates tar unzip perl libxml2 tmux
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -29,7 +29,14 @@ mkdir -p "$PREFIX"
 
 fetch "$tmp/cuda.run" "https://developer.download.nvidia.com/compute/cuda/$CUDA_VERSION/local_installers/cuda_${CUDA_VERSION}_linux.run"
 echo "$CUDA_MD5  $tmp/cuda.run" | md5sum --check -
-sh "$tmp/cuda.run" --silent --toolkit --toolkitpath="$PREFIX/cuda" --no-man-page --tmpdir="$tmp"
+# Without --silent the installer opens an interactive menu, so follow its log instead.
+echo "Installing CUDA $CUDA_VERSION. This can take several minutes."
+tail -n 0 -F /var/log/cuda-installer.log 2>/dev/null &
+log_tail=$!
+installer_status=0
+sh "$tmp/cuda.run" --silent --toolkit --toolkitpath="$PREFIX/cuda" --no-man-page --tmpdir="$tmp" || installer_status=$?
+kill "$log_tail"
+[ "$installer_status" -eq 0 ] || { echo "The CUDA installer failed; see /var/log/cuda-installer.log." >&2; exit "$installer_status"; }
 rm "$tmp/cuda.run"
 
 fetch "$tmp/cmake.tgz" "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.tar.gz"
