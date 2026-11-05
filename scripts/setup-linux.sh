@@ -3,7 +3,7 @@
 # CUDA 13.4.3, CMake 3.31.12, Ninja 1.13.2, the distro's g++ and neofetch (or fastfetch if the distro
 # has no neofetch). Run it as root or with sudo.
 # Afterwards, run `source /opt/cuda-alignment/env.sh` in each shell that builds the project.
-# It doesn't install the NVIDIA driver, which is needed to run the program.
+# It also installs the latest NVIDIA driver if it finds an NVIDIA GPU, unless it's running in a container.
 set -euo pipefail
 
 PREFIX=/opt/cuda-alignment
@@ -62,9 +62,26 @@ cmake -S "$repo" -B "$tmp/build" -G Ninja
 cmake --build "$tmp/build"
 echo "Test build succeeded."
 
-if nvidia-smi -L 2>/dev/null; then
-    echo "NVIDIA driver found. CUDA 13.4.3 programs may need a recent driver; check 'nvidia-smi' if the program won't start."
+if [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
+    echo "Skipping the NVIDIA driver because this is a container. It has to be installed on the host."
+elif ! grep -qs '^0x10de$' /sys/bus/pci/devices/*/vendor; then
+    echo "Skipping the NVIDIA driver because no NVIDIA GPU was found."
+elif command -v nvidia-uninstall >/dev/null; then
+    echo "Skipping the NVIDIA driver because a .run driver is installed, which conflicts with the apt one. Remove it with nvidia-uninstall, then run this script again."
 else
-    echo "No working NVIDIA driver found, so the program can build here but not run."
+    # The distro archives can lag behind or be too old for CUDA 13 (Debian 13 has R550), so use NVIDIA's repo.
+    distro="$(. /etc/os-release; echo "$ID${VERSION_ID//./}")"
+    driver_repo="https://developer.download.nvidia.com/compute/cuda/repos/$distro/x86_64/"
+    mkdir -p /etc/apt/keyrings
+    fetch /etc/apt/keyrings/nvidia-cuda.asc "${driver_repo}3bf863cc.pub"
+    echo "deb [signed-by=/etc/apt/keyrings/nvidia-cuda.asc] $driver_repo /" >/etc/apt/sources.list.d/nvidia-cuda.list
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "linux-headers-$(uname -r)" cuda-drivers
+fi
+
+if nvidia-smi -L 2>/dev/null; then
+    echo "NVIDIA driver found: $(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n 1)"
+else
+    echo "No working NVIDIA driver is loaded, so the program can build here but not run. If the driver was just installed or updated, reboot."
 fi
 [ -f "$repo/data/BLOSUM62.txt" ] || echo "data/ is missing. It isn't in git, so copy it here before running the program."
