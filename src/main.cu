@@ -810,7 +810,8 @@ int main() {
 
         steady_clock::time_point start, end;
 
-        for (int index_prot = 0; index_prot < 4096; index_prot++) {
+        const int num_prots = static_cast<int>(min<size_t>(proteinInputs.size(), 4096));
+        for (int index_prot = 0; index_prot < num_prots; index_prot++) {
 
             DNA_sequence = dnaInputs[index_dna];
             protein_sequence = proteinInputs[index_prot];
