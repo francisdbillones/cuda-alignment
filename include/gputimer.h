@@ -1,35 +1,29 @@
 #ifndef GPU_TIMER_H
 #define GPU_TIMER_H
 
-struct GpuTimer
-{
+struct GpuTimer {
     cudaEvent_t start;
     cudaEvent_t stop;
 
-    GpuTimer()
-    {
+    GpuTimer() {
         cudaEventCreate(&start);
         cudaEventCreate(&stop);
     }
 
-    ~GpuTimer()
-    {
+    ~GpuTimer() {
         cudaEventDestroy(start);
         cudaEventDestroy(stop);
     }
 
-    void Start()
-    {
+    void Start() {
         cudaEventRecord(start, 0);
     }
 
-    void Stop()
-    {
+    void Stop() {
         cudaEventRecord(stop, 0);
     }
 
-    float Elapsed()
-    {
+    float Elapsed() {
         float elapsed;
         cudaEventSynchronize(stop);
         cudaEventElapsedTime(&elapsed, start, stop);

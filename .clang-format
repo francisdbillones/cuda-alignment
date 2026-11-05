@@ -1,0 +1,15 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+AccessModifierOffset: -4
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Empty
+BreakStringLiterals: false
+ReflowComments: true 
+# CUDA qualifiers.
+AttributeMacros: [__global__, __device__, __host__, __constant__, __restrict__]
+...
