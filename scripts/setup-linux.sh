@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Installs what this project needs to build and run on x86_64 Debian or Ubuntu, then test-builds it:
-# CUDA 13.4.3, CMake 3.31.12, Ninja 1.13.2 and the distro's g++. Run it as root or with sudo.
+# CUDA 13.4.3, CMake 3.31.12, Ninja 1.13.2, the distro's g++ and neofetch (or fastfetch if the distro
+# has no neofetch). Run it as root or with sudo.
 # Afterwards, run `source /opt/cuda-alignment/env.sh` in each shell that builds the project.
 # It doesn't install the NVIDIA driver, which is needed to run the program.
 set -euo pipefail
@@ -18,8 +19,11 @@ NINJA_SHA256=5749cbc4e668273514150a80e387a957f933c6ed3f5f11e03fb30955e2bbead6
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
 apt-get update
+# Debian 13 packages fastfetch but not neofetch; the older supported distros are the reverse.
+sysinfo=neofetch
+apt-cache show neofetch >/dev/null 2>&1 || sysinfo=fastfetch
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    g++ curl ca-certificates tar unzip perl libxml2 tmux
+    g++ curl ca-certificates tar unzip perl libxml2 tmux "$sysinfo"
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
