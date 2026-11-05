@@ -3,6 +3,7 @@
 # CUDA 13.4.3, CMake 3.31.12, Ninja 1.13.2, the distro's g++ and neofetch (or fastfetch if the distro
 # has no neofetch). Run it as root or with sudo.
 # Afterwards, run `source /opt/cuda-alignment/env.sh` in each shell that builds the project.
+# It keeps an existing CUDA install of any version instead of installing 13.4.3.
 # It also installs the latest NVIDIA driver if it finds an NVIDIA GPU, unless it's running in a container.
 set -euo pipefail
 
@@ -31,17 +32,31 @@ fetch() { curl -fL --retry 5 --connect-timeout 30 -o "$1" "$2"; }
 
 mkdir -p "$PREFIX"
 
-fetch "$tmp/cuda.run" "https://developer.download.nvidia.com/compute/cuda/$CUDA_VERSION/local_installers/cuda_${CUDA_VERSION}_linux.run"
-echo "$CUDA_MD5  $tmp/cuda.run" | md5sum --check -
-# Without --silent the installer opens an interactive menu, so follow its log instead.
-echo "Installing CUDA $CUDA_VERSION. This can take several minutes."
-tail -n 0 -F /var/log/cuda-installer.log 2>/dev/null &
-log_tail=$!
-installer_status=0
-sh "$tmp/cuda.run" --silent --toolkit --toolkitpath="$PREFIX/cuda" --no-man-page --tmpdir="$tmp" || installer_status=$?
-kill "$log_tail"
-[ "$installer_status" -eq 0 ] || { echo "The CUDA installer failed; see /var/log/cuda-installer.log." >&2; exit "$installer_status"; }
-rm "$tmp/cuda.run"
+# sudo can drop the user's PATH, so also check where NVIDIA's installer puts CUDA by default.
+cuda_root=
+for nvcc in "$PREFIX/cuda/bin/nvcc" "$(command -v nvcc || true)" /usr/local/cuda/bin/nvcc; do
+    if "$nvcc" --version >/dev/null 2>&1; then
+        cuda_root="$(dirname "$(dirname "$(readlink -f "$nvcc")")")"
+        break
+    fi
+done
+
+if [ -n "$cuda_root" ]; then
+    echo "Skipping the CUDA install because one already exists at $cuda_root."
+else
+    fetch "$tmp/cuda.run" "https://developer.download.nvidia.com/compute/cuda/$CUDA_VERSION/local_installers/cuda_${CUDA_VERSION}_linux.run"
+    echo "$CUDA_MD5  $tmp/cuda.run" | md5sum --check -
+    # Without --silent the installer opens an interactive menu, so follow its log instead.
+    echo "Installing CUDA $CUDA_VERSION. This can take several minutes."
+    tail -n 0 -F /var/log/cuda-installer.log 2>/dev/null &
+    log_tail=$!
+    installer_status=0
+    sh "$tmp/cuda.run" --silent --toolkit --toolkitpath="$PREFIX/cuda" --no-man-page --tmpdir="$tmp" || installer_status=$?
+    kill "$log_tail"
+    [ "$installer_status" -eq 0 ] || { echo "The CUDA installer failed; see /var/log/cuda-installer.log." >&2; exit "$installer_status"; }
+    rm "$tmp/cuda.run"
+    cuda_root="$PREFIX/cuda"
+fi
 
 fetch "$tmp/cmake.tgz" "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.tar.gz"
 echo "$CMAKE_SHA256  $tmp/cmake.tgz" | sha256sum --check -
@@ -53,8 +68,8 @@ echo "$NINJA_SHA256  $tmp/ninja.zip" | sha256sum --check -
 unzip -qo "$tmp/ninja.zip" -d "$PREFIX/cmake/bin"
 
 cat >"$PREFIX/env.sh" <<EOF
-export PATH="$PREFIX/cuda/bin:$PREFIX/cmake/bin:\$PATH"
-export LD_LIBRARY_PATH="$PREFIX/cuda/lib64\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+export PATH="$cuda_root/bin:$PREFIX/cmake/bin:\$PATH"
+export LD_LIBRARY_PATH="$cuda_root/lib64\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
 EOF
 . "$PREFIX/env.sh"
 
