@@ -20,6 +20,7 @@
 #undef __CUDACC__
 #endif // __INTELLISENSE__
 
+#include "codon.cuh"
 #include "gputimer.h"
 
 #ifndef CUDA_ALIGNMENT_DATA_DIR
@@ -79,87 +80,6 @@ void check(T err, const char* const func, const char* const file, const int line
     }
 }
 
-__host__ __device__ char d_DNA_to_Protein(const char* dna_seq, int dna_index_1, int dna_index_2,
-                                          int dna_index_3) {
-    char codon[4] = "   ";
-    codon[0] = dna_seq[dna_index_1];
-    codon[1] = dna_seq[dna_index_2];
-    codon[2] = dna_seq[dna_index_3];
-    codon[3] = '\0';
-
-    if (codon[0] == 'T') {
-        if (codon[1] == 'T') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'F';
-            if (codon[2] == 'A' || codon[2] == 'G')
-                return 'L';
-        } else if (codon[1] == 'C') {
-            return 'S';
-        } else if (codon[1] == 'A') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'Y';
-            if (codon[2] == 'A' || codon[2] == 'G')
-                return 'X';
-        } else if (codon[1] == 'G') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'C';
-            if (codon[2] == 'G')
-                return 'W';
-            if (codon[2] == 'A')
-                return 'X';
-        }
-    } else if (codon[0] == 'C') {
-        if (codon[1] == 'T')
-            return 'L';
-        if (codon[1] == 'C')
-            return 'P';
-        if (codon[1] == 'A') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'H';
-            if (codon[2] == 'A' || codon[2] == 'G')
-                return 'Q';
-        } else if (codon[1] == 'G')
-            return 'R';
-    } else if (codon[0] == 'A') {
-        if (codon[1] == 'T') {
-            if (codon[2] == 'A' || codon[2] == 'C' || codon[2] == 'T')
-                return 'I';
-            if (codon[2] == 'G')
-                return 'M';
-        }
-        if (codon[1] == 'C')
-            return 'T';
-
-        if (codon[1] == 'A') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'N';
-            if (codon[2] == 'G' || codon[2] == 'A')
-                return 'K';
-        }
-
-        if (codon[1] == 'G') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'S';
-            if (codon[2] == 'A' || codon[2] == 'G')
-                return 'R';
-        }
-    } else if (codon[0] == 'G') {
-        if (codon[1] == 'T')
-            return 'V';
-        if (codon[1] == 'C')
-            return 'A';
-        if (codon[1] == 'A') {
-            if (codon[2] == 'T' || codon[2] == 'C')
-                return 'D';
-            if (codon[2] == 'G' || codon[2] == 'A')
-                return 'E';
-        }
-        if (codon[1] == 'G')
-            return 'G';
-    }
-    return ' ';
-}
-
 string reverse_complement(string str) {
     unordered_map<char, char> RC{{'A', 'T'}, {'C', 'G'}, {'T', 'A'}, {'G', 'C'}};
 
@@ -169,13 +89,13 @@ string reverse_complement(string str) {
     }
     return str;
 }
-
+    
 void three_frame(char* str, string* frame_one, string* frame_two, string* frame_three) {
     for (unsigned int i = 1; i < strlen(str) + 1; i += 3) {
         if (i + 2 < strlen(str) + 1) {
-            *frame_one += d_DNA_to_Protein(str, i - 1, i, i + 1);
-            *frame_two += d_DNA_to_Protein(str, i, i + 1, i + 2);
-            *frame_three += d_DNA_to_Protein(str, i + 1, i + 2, i + 3);
+            *frame_one += translate_codon(str + i - 1);
+            *frame_two += translate_codon(str + i);
+            *frame_three += translate_codon(str + i + 1);
         }
     }
 }
@@ -349,7 +269,7 @@ void init_local_v2(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, in
         for (size_t j = 1; j < M; j++) {
             insert = ins_mat[i * M + (j - 1)] - gep;
             xscore = sc_mat[i * M + (j - 1)] - gop - gep;
-            prot_seq = d_DNA_to_Protein(input_seq, i - 1, i, i + 1);
+            prot_seq = translate_codon(input_seq + i - 1);
 
             if (insert > xscore) {
                 ins_mat[i * M + j] = insert;
@@ -405,7 +325,7 @@ void scoring_local_v2(const char* input_seq, const char* ref_seq, int* sc_mat, i
                       size_t M) {
     for (int i = 4; i < N; i++) {
         for (int j = 1; j < M; j++) {
-            prot_seq = d_DNA_to_Protein(input_seq, i - 1, i, i + 1);
+            prot_seq = translate_codon(input_seq + i - 1);
             scoring = score(prot_seq, ref_seq[j - 1]);
             insert = ins_mat[i * M + (j - 1)] - gep;
             xscore = sc_mat[i * M + (j - 1)] - gop - gep;
@@ -491,7 +411,7 @@ __global__ void scoring_local_v2_cuda(const char* __restrict__ input_seq,
                     u_sc_mat[i * M + j] = 0;
                     u_t_sc_mat[i * M + j] = infn;
                 } else {
-                    prot_seq = d_DNA_to_Protein(input_seq, i - 1, i, i + 1);
+                    prot_seq = translate_codon(input_seq + i - 1);
                     scoring = d_score(prot_seq, ref_seq[j - 1]);
                     insert = u_ins_mat[i * M + (j - 1)] - c_gep;
                     xscore = u_sc_mat[i * M + (j - 1)] - c_gop - c_gep;
@@ -568,7 +488,7 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
         i -= 3;
         j--;
         k = i + 3;
-        final_seq1 += d_DNA_to_Protein(str, k - 1, k, k + 1);
+        final_seq1 += translate_codon(str + k - 1);
         final_seq2 += ref_seq[j];
         frameshift += " ";
     } else if (trace == -2) {
@@ -579,14 +499,14 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
     } else if (trace == -1) {
         i -= 3;
         k = i + 3;
-        final_seq1 += d_DNA_to_Protein(str, k - 1, k, k + 1);
+        final_seq1 += translate_codon(str + k - 1);
         final_seq2 += "-";
         frameshift += " ";
     } else if (trace == 4) {
         i -= 4;
         j--;
         k = i + 4;
-        final_seq1 += d_DNA_to_Protein(str, k - 1, k, k + 1);
+        final_seq1 += translate_codon(str + k - 1);
         final_seq2 += ref_seq[j];
         frameshift += "*";
 
@@ -594,14 +514,14 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
         i -= 2;
         j--;
         k = i + 2;
-        final_seq1 += d_DNA_to_Protein(str, k - 1, k, k + 1);
+        final_seq1 += translate_codon(str + k - 1);
         final_seq2 += ref_seq[j];
         frameshift += "*";
     } else if (trace == 1) {
         i--;
         j--;
         k = i + 1;
-        final_seq1 += d_DNA_to_Protein(str, k - 1, k, k + 1);
+        final_seq1 += translate_codon(str + k - 1);
         final_seq2 += ref_seq[j];
         frameshift += " ";
     }
