@@ -8,8 +8,10 @@
 #include <vector>
 
 #include <algorithm>
+#include <array>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include <memory>
 
 #include "blosum62.h"
 #include "codon.cuh"
@@ -31,27 +33,30 @@ using std::vector;
 using std::chrono::duration;
 using std::chrono::steady_clock;
 
-string myArray[40000][5];
+struct Hit {
+    int score = 0;
+    int i = 0, j = 0;
+    bool reverse = false;
+};
 
-void top5(int score, int index, int top_i, int top_j, int* score_top, int* top_i_max,
-          int* top_j_max, int* top_indices) {
-    for (int x = 0; x < 5; x++) {
-        if (score >= score_top[x]) {
-            for (int y = 4; y > x; y--) {
-                score_top[y] = score_top[y - 1];
-                top_i_max[y] = top_i_max[y - 1];
-                top_j_max[y] = top_j_max[y - 1];
-                top_indices[y] = top_indices[y - 1];
+struct Ranked {
+    int score = 0;
+    int prot = 0;
+};
+
+std::array<Ranked, 5> top5(const vector<Hit>& hits) {
+    std::array<Ranked, 5> top{};
+    for (int p = 0; p < (int)hits.size(); p++) {
+        for (int x = 0; x < 5; x++) {
+            if (hits[p].score >= top[x].score) {
+                for (int y = 4; y > x; y--)
+                    top[y] = top[y - 1];
+                top[x] = {hits[p].score, p};
+                break;
             }
-
-            score_top[x] = score;
-            top_i_max[x] = top_i;
-            top_j_max[x] = top_j;
-            top_indices[x] = index;
-
-            break;
         }
     }
+    return top;
 }
 
 void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_seq1,
@@ -106,7 +111,7 @@ struct Alignment {
 };
 
 void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, size_t N,
-                      size_t M, int index, int* indexes, Alignment* aln = nullptr) {
+                      size_t M, int* indexes, Alignment* aln = nullptr) {
     N = (int)N;
     M = (int)M;
     int i_max = 0, j_max = 0, max_score = 0, curr_score, i = 0, j = 0;
@@ -130,11 +135,7 @@ void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat
     i = i_max;
     j = j_max;
 
-    myArray[index][0] = to_string(max_score);
-    myArray[index][2] = to_string(j_max);
-
     while (sc_mat[i * M + j] != 0) {
-        myArray[index][1] = to_string(j);
         indexes[3] = j;
         routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, seq_dna, seq_prot, frameshift);
     }
@@ -143,25 +144,174 @@ void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat
         *aln = {seq_dna, seq_prot, frameshift};
 }
 
-void write_to_excel(int n, int i) {
-    string filename = "outputRun6F" + std::to_string(n) + ".csv";
-    std::ofstream file(filename, std::ios::app);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing." << std::endl;
-        return;
+Hit best_cell(const int* sc_mat, size_t N, size_t M) {
+    Hit h;
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < M; j++) {
+            if (sc_mat[i * M + j] > h.score) {
+                h.score = sc_mat[i * M + j];
+                h.i = (int)i;
+                h.j = (int)j;
+            }
+        }
     }
-    file << i << "," << myArray[i][4] << "," << myArray[i][0] << "," << myArray[i][1] << ","
-         << myArray[i][2] << "," << myArray[i][3] << "\n";
+    return h;
+}
 
-    file.close();
-    cout << "Data " << i << " successfully written to output.csv" << endl;
+Hit better_strand(Hit fwd, Hit rev) {
+    if (fwd.score >= rev.score)
+        return fwd;
+    rev.reverse = true;
+    return rev;
+}
+
+struct HostMats {
+    std::unique_ptr<int[]> sc, ins, del, t_sc, t_ins, t_del;
+
+    explicit HostMats(size_t n)
+        : sc(new int[n]), ins(new int[n]), del(new int[n]), t_sc(new int[n]), t_ins(new int[n]),
+          t_del(new int[n]) {}
+
+    void init(char* dna, char* prot, size_t N, size_t M) {
+        scoring_init(dna, prot, sc.get(), ins.get(), del.get(), t_sc.get(), t_ins.get(),
+                     t_del.get(), N, M);
+    }
+};
+
+struct DeviceMats {
+    int *sc, *ins, *del, *t_sc, *t_ins, *t_del;
+
+    DeviceMats(const HostMats& h, size_t n) {
+        int** dst[] = {&sc, &ins, &del, &t_sc, &t_ins, &t_del};
+        const int* src[] = {h.sc.get(),   h.ins.get(),   h.del.get(),
+                            h.t_sc.get(), h.t_ins.get(), h.t_del.get()};
+        for (int k = 0; k < 6; k++) {
+            checkCudaErrors(cudaMalloc(dst[k], n * sizeof(int)));
+            checkCudaErrors(cudaMemcpy(*dst[k], src[k], n * sizeof(int), cudaMemcpyHostToDevice));
+        }
+    }
+    ~DeviceMats() {
+        for (int* d : {sc, ins, del, t_sc, t_ins, t_del})
+            checkCudaErrors(cudaFree(d));
+    }
+    DeviceMats(const DeviceMats&) = delete;
+    DeviceMats& operator=(const DeviceMats&) = delete;
+};
+
+vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t num_prots,
+                          int frame, double& elapsed_ms) {
+    string fwd = dna, rev = reverse_complement(dna);
+    const size_t N = dna.length();
+    vector<Hit> hits(num_prots);
+
+    for (size_t p = 0; p < num_prots; p++) {
+        string prot = prots[p];
+        const size_t M = prot.length() + 1;
+
+        auto score_strand = [&](string& strand) {
+            HostMats m(N * M);
+            m.init(&strand[0], &prot[0], N, M);
+            const auto start = steady_clock::now();
+            scoring_cpu(strand.data(), prot.data(), m.sc.get(), m.ins.get(), m.del.get(),
+                        m.t_sc.get(), m.t_ins.get(), m.t_del.get(), N, M);
+            elapsed_ms += duration<double, milli>(steady_clock::now() - start).count();
+            return best_cell(m.sc.get(), N, M);
+        };
+
+        hits[p] = score_strand(fwd);
+        if (frame == 6)
+            hits[p] = better_strand(hits[p], score_strand(rev));
+    }
+    return hits;
+}
+
+vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_t num_prots,
+                           int frame, double& elapsed_ms) {
+    string fwd = dna, rev = reverse_complement(dna);
+    const size_t N = dna.length();
+    vector<Hit> hits(num_prots);
+
+    char *d_codon_aa, *d_codon_aa_r;
+    checkCudaErrors(cudaMalloc(&d_codon_aa, N));
+    checkCudaErrors(cudaMalloc(&d_codon_aa_r, N));
+    checkCudaErrors(cudaMemcpy(d_codon_aa, translate_each_position(fwd.data(), N).data(), N,
+                               cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_codon_aa_r, translate_each_position(rev.data(), N).data(), N,
+                               cudaMemcpyHostToDevice));
+
+    cudaStream_t stream1, stream2;
+    checkCudaErrors(cudaStreamCreate(&stream1));
+    checkCudaErrors(cudaStreamCreate(&stream2));
+    GpuTimer timer;
+
+    for (size_t p = 0; p < num_prots; p++) {
+        string prot = prots[p];
+        const size_t M = prot.length() + 1;
+        const size_t n = N * M;
+
+        HostMats h(n);
+        h.init(&fwd[0], &prot[0], N, M);
+        std::unique_ptr<HostMats> h_r;
+        if (frame == 6) {
+            h_r = std::make_unique<HostMats>(n);
+            h_r->init(&rev[0], &prot[0], N, M);
+        }
+
+        char* d_protein_sequence;
+        checkCudaErrors(cudaMalloc(&d_protein_sequence, M));
+        checkCudaErrors(cudaMemcpy(d_protein_sequence, prot.data(), M, cudaMemcpyHostToDevice));
+        DeviceMats d(h, n);
+        std::unique_ptr<DeviceMats> d_r;
+        if (frame == 6)
+            d_r = std::make_unique<DeviceMats>(*h_r, n);
+
+        dim3 blockDimMain(32, 32);
+        unsigned int submatrixSide = blockDimMain.y;
+        unsigned int numSubmatrixRows = ((unsigned int)N + submatrixSide - 1) / submatrixSide;
+        unsigned int numSubmatrixCols = ((unsigned int)M + submatrixSide - 1) / submatrixSide;
+
+        timer.Start();
+        for (unsigned int diag = 0; diag < numSubmatrixRows + numSubmatrixCols - 1; ++diag) {
+            unsigned int first_sub_y_curr_diag =
+                std::max(0, (int)diag - (int)(numSubmatrixCols - 1));
+            unsigned int last_sub_y_curr_diag = std::min((int)diag, (int)numSubmatrixRows - 1);
+            dim3 currGridDim(last_sub_y_curr_diag - first_sub_y_curr_diag + 1, 1);
+
+            scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
+                d_codon_aa, d_protein_sequence, d.sc, d.ins, d.del, d.t_sc, d.t_ins, d.t_del,
+                (unsigned int)N, (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
+            if (d_r)
+                scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
+                    d_codon_aa_r, d_protein_sequence, d_r->sc, d_r->ins, d_r->del, d_r->t_sc,
+                    d_r->t_ins, d_r->t_del, (unsigned int)N, (unsigned int)M, diag, submatrixSide,
+                    first_sub_y_curr_diag);
+        }
+        checkCudaErrors(cudaStreamSynchronize(stream1));
+        checkCudaErrors(cudaStreamSynchronize(stream2));
+        timer.Stop();
+        elapsed_ms += timer.Elapsed();
+
+        checkCudaErrors(cudaMemcpy(h.sc.get(), d.sc, n * sizeof(int), cudaMemcpyDeviceToHost));
+        hits[p] = best_cell(h.sc.get(), N, M);
+        if (d_r) {
+            checkCudaErrors(
+                cudaMemcpy(h_r->sc.get(), d_r->sc, n * sizeof(int), cudaMemcpyDeviceToHost));
+            hits[p] = better_strand(hits[p], best_cell(h_r->sc.get(), N, M));
+        }
+        checkCudaErrors(cudaFree(d_protein_sequence));
+    }
+
+    checkCudaErrors(cudaStreamDestroy(stream1));
+    checkCudaErrors(cudaStreamDestroy(stream2));
+    checkCudaErrors(cudaFree(d_codon_aa));
+    checkCudaErrors(cudaFree(d_codon_aa_r));
+    return hits;
 }
 
 int main() {
     int mode, frame, top, device;
     vector<string> dnaInputs, proteinInputs, proteinIdInputs;
     string protein_sequence, DNA_sequence, DNA_sequence_r, file_name;
-    GpuTimer timer;
 
     checkCudaErrors(cudaGetDevice(&device));
     checkCudaErrors(cudaSetDevice(device));
@@ -225,360 +375,25 @@ int main() {
     } while (true);
 
     double total_r = 0.0;
+    const size_t num_prots = min<size_t>(proteinInputs.size(), 4096);
 
     for (int index_dna = 0; index_dna < dnaInputs.size(); index_dna++) {
+        const vector<Hit> hits =
+            mode == 0
+                ? score_all_cpu(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r)
+                : score_all_cuda(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r);
+        cout << "Total runtime: " << total_r << endl;
 
-        int* top_scores = new int[5]{};
-        int* top_i = new int[5]{};
-        int* top_j = new int[5]{};
-        int* top_indexes = new int[5]{};
-        int* index = new int[4]{};
-        int* index_r = new int[4]{};
-
+        const std::array<Ranked, 5> best = top5(hits);
+        int index[4] = {}, index_r[4] = {};
         steady_clock::time_point start, end;
 
-        const int num_prots = static_cast<int>(min<size_t>(proteinInputs.size(), 4096));
-        for (int index_prot = 0; index_prot < num_prots; index_prot++) {
-
-            DNA_sequence = dnaInputs[index_dna];
-            protein_sequence = proteinInputs[index_prot];
-            DNA_sequence_r = reverse_complement(DNA_sequence);
-
-            size_t N = DNA_sequence.length();
-            size_t M = protein_sequence.length() + 1;
-
-            size_t N_size = (N) * sizeof(char);
-            size_t M_size = (M) * sizeof(char);
-            size_t size = (N) * (M) * sizeof(int);
-
-            myArray[index_prot][4] = to_string(protein_sequence.length());
-
-            int* sc_mat = (int*)malloc(size);
-            int* ins_mat = (int*)malloc(size);
-            int* del_mat = (int*)malloc(size);
-
-            int* t_sc_mat = (int*)malloc(size);
-            int* t_ins_mat = (int*)malloc(size);
-            int* t_del_mat = (int*)malloc(size);
-
-            int* sc_mat_r = (int*)malloc(size);
-            int* ins_mat_r = (int*)malloc(size);
-            int* del_mat_r = (int*)malloc(size);
-
-            int* t_sc_mat_r = (int*)malloc(size);
-            int* t_ins_mat_r = (int*)malloc(size);
-            int* t_del_mat_r = (int*)malloc(size);
-
-            char* c_DNA_sequence = new char[N_size + 1];
-            char* c_protein_sequence = new char[M_size];
-            char* c_DNA_sequence_r = new char[N_size + 1];
-
-            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size + 1);
-            memcpy(c_protein_sequence, protein_sequence.c_str(), M_size);
-            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size + 1);
-
-            scoring_init(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
-                         t_ins_mat, t_del_mat, N, M);
-            if (frame == 6)
-                scoring_init(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, ins_mat_r, del_mat_r,
-                             t_sc_mat_r, t_ins_mat_r, t_del_mat_r, N, M);
-
-            if (mode == 0) {
-                start = steady_clock::now();
-                scoring_cpu(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
-                            t_ins_mat, t_del_mat, N, M);
-                end = steady_clock::now();
-                double elapsed1 = duration<double, milli>(end - start).count();
-
-                traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                                 index_prot, index);
-                myArray[index_prot][3] = to_string(elapsed1);
-                if (frame == 3)
-                    top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
-                         top_indexes);
-                // write_to_excel(index_dna, index_prot);
-                total_r += elapsed1;
-                cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
-                     << "Time in ms: " << elapsed1 << endl;
-                cout << "Total runtime: " << total_r << endl;
-
-                if (frame == 6) {
-                    start = steady_clock::now();
-                    scoring_cpu(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, ins_mat_r,
-                                del_mat_r, t_sc_mat_r, t_ins_mat_r, t_del_mat_r, N, M);
-                    end = steady_clock::now();
-                    double elapsed = duration<double, milli>(end - start).count();
-
-                    traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N,
-                                     M, index_prot, index_r);
-                    myArray[index_prot][3] = to_string(elapsed + elapsed1);
-                    cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
-                         << "Time in ms: " << elapsed + elapsed1 << endl;
-                    total_r += elapsed;
-                    cout << "Total runtime: " << total_r << endl;
-
-                    if (index[0] >= index_r[0]) {
-                        myArray[index_prot][0] = to_string(index[0]);
-                        myArray[index_prot][1] = to_string(index[3]);
-                        myArray[index_prot][2] = to_string(index[2]);
-                        top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
-                             top_indexes);
-                    } else {
-                        myArray[index_prot][0] = to_string(index_r[0]);
-                        myArray[index_prot][1] = to_string(index_r[3]);
-                        myArray[index_prot][2] = to_string(index_r[2]);
-                        top5(index_r[0], index_prot, index_r[1], index_r[2], top_scores, top_i,
-                             top_j, top_indexes);
-                    }
-                    // write_to_excel(index_dna, index_prot);
-                }
-            } else if (mode == 1) {
-
-                char* d_codon_aa;
-                char* d_protein_sequence;
-                char* d_codon_aa_r;
-
-                int* d_sc_mat;
-                int* d_ins_mat;
-                int* d_del_mat;
-
-                int* d_t_sc_mat;
-                int* d_t_ins_mat;
-                int* d_t_del_mat;
-
-                int* d_sc_mat_r;
-                int* d_ins_mat_r;
-                int* d_del_mat_r;
-
-                int* d_t_sc_mat_r;
-                int* d_t_ins_mat_r;
-                int* d_t_del_mat_r;
-
-                cudaStream_t stream1, stream2;
-                checkCudaErrors(cudaStreamCreate(&stream1));
-                if (frame == 6)
-                    checkCudaErrors(cudaStreamCreate(&stream2));
-
-                checkCudaErrors(cudaMalloc(&d_codon_aa, N_size));
-                checkCudaErrors(cudaMalloc(&d_protein_sequence, M_size));
-                checkCudaErrors(cudaMalloc(&d_codon_aa_r, N_size));
-
-                checkCudaErrors(cudaMemcpy(d_codon_aa,
-                                           translate_each_position(c_DNA_sequence, N).data(),
-                                           N_size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_protein_sequence, c_protein_sequence, M_size,
-                                           cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_codon_aa_r,
-                                           translate_each_position(c_DNA_sequence_r, N).data(),
-                                           N_size, cudaMemcpyHostToDevice));
-
-                checkCudaErrors(cudaMalloc(&d_sc_mat, size));
-                checkCudaErrors(cudaMalloc(&d_ins_mat, size));
-                checkCudaErrors(cudaMalloc(&d_del_mat, size));
-
-                checkCudaErrors(cudaMalloc(&d_t_sc_mat, size));
-                checkCudaErrors(cudaMalloc(&d_t_ins_mat, size));
-                checkCudaErrors(cudaMalloc(&d_t_del_mat, size));
-
-                checkCudaErrors(cudaMalloc(&d_sc_mat_r, size));
-                checkCudaErrors(cudaMalloc(&d_ins_mat_r, size));
-                checkCudaErrors(cudaMalloc(&d_del_mat_r, size));
-
-                checkCudaErrors(cudaMalloc(&d_t_sc_mat_r, size));
-                checkCudaErrors(cudaMalloc(&d_t_ins_mat_r, size));
-                checkCudaErrors(cudaMalloc(&d_t_del_mat_r, size));
-
-                checkCudaErrors(cudaMemcpy(d_sc_mat, sc_mat, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_ins_mat, ins_mat, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_del_mat, del_mat, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_t_sc_mat, t_sc_mat, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_t_ins_mat, t_ins_mat, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_t_del_mat, t_del_mat, size, cudaMemcpyHostToDevice));
-
-                checkCudaErrors(cudaMemcpy(d_sc_mat_r, sc_mat_r, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_ins_mat_r, ins_mat_r, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_del_mat_r, del_mat_r, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(cudaMemcpy(d_t_sc_mat_r, t_sc_mat_r, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(
-                    cudaMemcpy(d_t_ins_mat_r, t_ins_mat_r, size, cudaMemcpyHostToDevice));
-                checkCudaErrors(
-                    cudaMemcpy(d_t_del_mat_r, t_del_mat_r, size, cudaMemcpyHostToDevice));
-
-                dim3 blockDimMain(32, 32);
-
-                unsigned int submatrixSide = blockDimMain.y;
-                unsigned int numSubmatrixRows =
-                    ((unsigned int)N + submatrixSide - 1) / submatrixSide;
-                unsigned int numSubmatrixCols =
-                    ((unsigned int)M + submatrixSide - 1) / submatrixSide;
-
-                if (frame == 3) {
-
-                    timer.Start();
-
-                    for (unsigned int diag = 0; diag < numSubmatrixRows + numSubmatrixCols - 1;
-                         ++diag) {
-                        unsigned int first_sub_y_curr_diag =
-                            std::max(0, (int)diag - (int)(numSubmatrixCols - 1));
-                        unsigned int last_sub_y_curr_diag =
-                            std::min((int)diag, (int)numSubmatrixRows - 1);
-
-                        unsigned int curr_diag_blocks = 0;
-                        if (last_sub_y_curr_diag >= first_sub_y_curr_diag)
-                            curr_diag_blocks = last_sub_y_curr_diag - first_sub_y_curr_diag + 1;
-                        dim3 currGridDim(1, 1);
-
-                        if (curr_diag_blocks > 0) {
-                            currGridDim = dim3(curr_diag_blocks, 1);
-                        }
-                        scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                            d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
-                            d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N, (unsigned int)M,
-                            diag, submatrixSide, first_sub_y_curr_diag);
-                    }
-                    checkCudaErrors(cudaStreamSynchronize(stream1));
-
-                    timer.Stop();
-
-                    checkCudaErrors(cudaStreamDestroy(stream1));
-                    checkCudaErrors(cudaMemcpy(sc_mat, d_sc_mat, size, cudaMemcpyDeviceToHost));
-                    checkCudaErrors(cudaMemcpy(t_sc_mat, d_t_sc_mat, size, cudaMemcpyDeviceToHost));
-
-                    traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                                     index_prot, index);
-                    cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
-                         << "Time in ms: " << timer.Elapsed() << endl;
-                    myArray[index_prot][3] = to_string(timer.Elapsed());
-                    // write_to_excel(index_dna, index_prot);
-                    top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
-                         top_indexes);
-                    total_r += timer.Elapsed();
-                    cout << "Total runtime: " << total_r << endl;
-                }
-
-                if (frame == 6) {
-
-                    timer.Start();
-
-                    for (unsigned int diag = 0; diag < numSubmatrixRows + numSubmatrixCols - 1;
-                         ++diag) {
-                        unsigned int first_sub_y_curr_diag =
-                            std::max(0, (int)diag - (int)(numSubmatrixCols - 1));
-                        unsigned int last_sub_y_curr_diag =
-                            std::min((int)diag, (int)numSubmatrixRows - 1);
-
-                        unsigned int curr_diag_blocks = 0;
-                        if (last_sub_y_curr_diag >= first_sub_y_curr_diag)
-                            curr_diag_blocks = last_sub_y_curr_diag - first_sub_y_curr_diag + 1;
-                        dim3 currGridDim(1, 1);
-
-                        if (curr_diag_blocks > 0) {
-                            currGridDim = dim3(curr_diag_blocks, 1);
-                        }
-                        scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                            d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
-                            d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N, (unsigned int)M,
-                            diag, submatrixSide, first_sub_y_curr_diag);
-                        scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
-                            d_codon_aa_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r, d_del_mat_r,
-                            d_t_sc_mat_r, d_t_ins_mat_r, d_t_del_mat_r, (unsigned int)N,
-                            (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
-                    }
-                    checkCudaErrors(cudaStreamSynchronize(stream1));
-                    checkCudaErrors(cudaStreamSynchronize(stream2));
-
-                    timer.Stop();
-
-                    checkCudaErrors(cudaStreamDestroy(stream1));
-                    checkCudaErrors(cudaStreamDestroy(stream2));
-
-                    checkCudaErrors(cudaMemcpy(sc_mat, d_sc_mat, size, cudaMemcpyDeviceToHost));
-                    checkCudaErrors(cudaMemcpy(t_sc_mat, d_t_sc_mat, size, cudaMemcpyDeviceToHost));
-
-                    checkCudaErrors(cudaMemcpy(sc_mat_r, d_sc_mat_r, size, cudaMemcpyDeviceToHost));
-                    checkCudaErrors(
-                        cudaMemcpy(t_sc_mat_r, d_t_sc_mat_r, size, cudaMemcpyDeviceToHost));
-
-                    traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                                     index_prot, index);
-                    cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
-                         << "Time in ms: " << timer.Elapsed() << endl;
-                    myArray[index_prot][3] = to_string(timer.Elapsed());
-
-                    traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N,
-                                     M, index_prot, index_r);
-                    cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
-                         << "Time in ms: " << timer.Elapsed() << endl;
-
-                    total_r += timer.Elapsed();
-                    cout << "Total runtime: " << total_r << endl;
-
-                    if (index[0] >= index_r[0]) {
-                        myArray[index_prot][0] = to_string(index[0]);
-                        myArray[index_prot][1] = to_string(index[3]);
-                        myArray[index_prot][2] = to_string(index[2]);
-                        top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
-                             top_indexes);
-                    } else {
-                        myArray[index_prot][0] = to_string(index_r[0]);
-                        myArray[index_prot][1] = to_string(index_r[3]);
-                        myArray[index_prot][2] = to_string(index_r[2]);
-                        top5(index_r[0], index_prot, index_r[1], index_r[2], top_scores, top_i,
-                             top_j, top_indexes);
-                    }
-
-                    // write_to_excel(index_dna, index_prot);
-                }
-
-                checkCudaErrors(cudaFree(d_codon_aa));
-                checkCudaErrors(cudaFree(d_protein_sequence));
-                checkCudaErrors(cudaFree(d_codon_aa_r));
-
-                checkCudaErrors(cudaFree(d_sc_mat));
-                checkCudaErrors(cudaFree(d_ins_mat));
-                checkCudaErrors(cudaFree(d_del_mat));
-
-                checkCudaErrors(cudaFree(d_t_sc_mat));
-                checkCudaErrors(cudaFree(d_t_ins_mat));
-                checkCudaErrors(cudaFree(d_t_del_mat));
-
-                checkCudaErrors(cudaFree(d_sc_mat_r));
-                checkCudaErrors(cudaFree(d_ins_mat_r));
-                checkCudaErrors(cudaFree(d_del_mat_r));
-
-                checkCudaErrors(cudaFree(d_t_sc_mat_r));
-                checkCudaErrors(cudaFree(d_t_ins_mat_r));
-                checkCudaErrors(cudaFree(d_t_del_mat_r));
-                cudaDeviceSynchronize();
-            }
-
-            free(sc_mat);
-            free(ins_mat);
-            free(del_mat);
-
-            free(t_sc_mat);
-            free(t_ins_mat);
-            free(t_del_mat);
-
-            free(sc_mat_r);
-            free(ins_mat_r);
-            free(del_mat_r);
-
-            free(t_sc_mat_r);
-            free(t_ins_mat_r);
-            free(t_del_mat_r);
-
-            delete[] c_protein_sequence;
-            delete[] c_DNA_sequence;
-            delete[] c_DNA_sequence_r;
-        }
-
         for (int i = 0; i < 5; i++) {
-            if (top == 0 && top_scores[i] != top_scores[0])
+            if (top == 0 && best[i].score != best[0].score)
                 continue;
 
             DNA_sequence = dnaInputs[index_dna];
-            protein_sequence = proteinInputs[top_indexes[i]];
+            protein_sequence = proteinInputs[best[i].prot];
             DNA_sequence_r = reverse_complement(DNA_sequence);
 
             size_t N = DNA_sequence.length();
@@ -620,8 +435,7 @@ int main() {
 
             // use cpu here, the cuda code is so long and we only have to iterate another 5 times
             // its honestly worth it saving LOC and keeping code simple to run a couple ms slower
-            cout << proteinIdInputs[top_indexes[i]] << endl
-                 << "Sequence: " << top_indexes[i] << endl;
+            cout << proteinIdInputs[best[i].prot] << endl << "Sequence: " << best[i].prot << endl;
             start = steady_clock::now();
             scoring_cpu(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
                         t_ins_mat, t_del_mat, N, M);
@@ -629,8 +443,8 @@ int main() {
             double elapsed1 = duration<double, milli>(end - start).count();
 
             Alignment aln, aln_r;
-            traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                             top_indexes[i], index, &aln);
+            traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M, index,
+                             &aln);
 
             bool use_reverse = false;
             double elapsed = elapsed1;
@@ -642,7 +456,7 @@ int main() {
                 double elapsed_r = duration<double, milli>(end - start).count();
 
                 traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N, M,
-                                 top_indexes[i], index_r, &aln_r);
+                                 index_r, &aln_r);
                 if (index[0] < index_r[0]) {
                     use_reverse = true;
                     elapsed = elapsed_r;
@@ -701,7 +515,7 @@ int main() {
             }
             cout << endl;
 
-            cout << endl << "Score: " << top_scores[i] << endl;
+            cout << endl << "Score: " << best[i].score << endl;
             cout << "Start to End match in Protein: " << shown_index[3] << "-" << shown_index[2]
                  << endl
                  << endl;
@@ -727,13 +541,6 @@ int main() {
             delete[] c_DNA_sequence;
             delete[] c_DNA_sequence_r;
         }
-
-        delete[] top_scores;
-        delete[] top_i;
-        delete[] top_j;
-        delete[] top_indexes;
-        delete[] index;
-        delete[] index_r;
     }
 
     return 0;
