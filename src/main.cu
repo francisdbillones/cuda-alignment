@@ -101,80 +101,13 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
     }
 }
 
-void traceV2_1d(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, int N, int M, int index,
-                int* indexes) {
-    int i_max = 0, j_max = 0, i = 0, j = 0, max_score = 0, curr_score;
-    string f1, f2, f3, seq_dna, seq_prot, frameshift;
-
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            curr_score = sc_mat[i * M + j];
-            if (curr_score > max_score) {
-                max_score = curr_score;
-                i_max = i;
-                j_max = j;
-            }
-        }
-    }
-
-    i = i_max;
-    j = j_max;
-
-    indexes[0] = max_score;
-    indexes[1] = i_max;
-    indexes[2] = j_max;
-
-    while (sc_mat[i * M + j] != 0) {
-        indexes[3] = j;
-        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, seq_dna, seq_prot, frameshift);
-    }
-    cout << endl;
-    reverse(seq_dna.begin(), seq_dna.end());
-    reverse(seq_prot.begin(), seq_prot.end());
-    reverse(frameshift.begin(), frameshift.end());
-
-    three_frame(input_seq, &f1, &f2, &f3);
-
-    cout << "DNA Input:\t";
-    for (i = 0; i < strlen(input_seq); i++) {
-        cout << input_seq[i];
-    }
-    cout << endl;
-    cout << "\t\t ";
-    for (i = 0; i < f1.length(); i++) {
-        cout << f1[i] << "  ";
-    }
-    cout << endl;
-    cout << "\t\t  ";
-    for (i = 0; i < f2.length(); i++) {
-        cout << f2[i] << "  ";
-    }
-    cout << endl;
-    cout << "\t\t   ";
-    for (i = 0; i < f3.length(); i++) {
-        cout << f3[i] << "  ";
-    }
-    cout << endl << endl;
-
-    cout << "Frame Match: \t ";
-    for (i = 0; i < seq_dna.length(); i++) {
-        cout << seq_dna[i] << "  ";
-    }
-    cout << endl;
-    cout << "Frameshift: \t ";
-    for (i = 0; i < frameshift.length(); i++) {
-        cout << frameshift[i] << "  ";
-    }
-    cout << endl;
-    cout << "Output Prot: \t ";
-    for (i = 0; i < seq_prot.length(); i++) {
-        cout << seq_prot[i] << "  ";
-    }
-    cout << endl;
-}
+// An alignment as traceback builds it, from its end back to its start.
+struct Alignment {
+    string dna, prot, frameshift;
+};
 
 void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, size_t N,
-                      size_t M, int index, int* indexes) {
+                      size_t M, int index, int* indexes, Alignment* aln = nullptr) {
     N = (int)N;
     M = (int)M;
     int i_max = 0, j_max = 0, max_score = 0, curr_score, i = 0, j = 0;
@@ -206,6 +139,61 @@ void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat
         indexes[3] = j;
         routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, seq_dna, seq_prot, frameshift);
     }
+
+    if (aln)
+        *aln = {seq_dna, seq_prot, frameshift};
+}
+
+void traceV2_1d(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, int N, int M, int index,
+                int* indexes) {
+    Alignment aln;
+    traceV2_1d_check(input_seq, ref_seq, sc_mat, t_sc_mat, N, M, index, indexes, &aln);
+    string f1, f2, f3;
+    size_t i;
+
+    cout << endl;
+    reverse(aln.dna.begin(), aln.dna.end());
+    reverse(aln.prot.begin(), aln.prot.end());
+    reverse(aln.frameshift.begin(), aln.frameshift.end());
+
+    three_frame(input_seq, &f1, &f2, &f3);
+
+    cout << "DNA Input:\t";
+    for (i = 0; i < strlen(input_seq); i++) {
+        cout << input_seq[i];
+    }
+    cout << endl;
+    cout << "\t\t ";
+    for (i = 0; i < f1.length(); i++) {
+        cout << f1[i] << "  ";
+    }
+    cout << endl;
+    cout << "\t\t  ";
+    for (i = 0; i < f2.length(); i++) {
+        cout << f2[i] << "  ";
+    }
+    cout << endl;
+    cout << "\t\t   ";
+    for (i = 0; i < f3.length(); i++) {
+        cout << f3[i] << "  ";
+    }
+    cout << endl << endl;
+
+    cout << "Frame Match: \t ";
+    for (i = 0; i < aln.dna.length(); i++) {
+        cout << aln.dna[i] << "  ";
+    }
+    cout << endl;
+    cout << "Frameshift: \t ";
+    for (i = 0; i < aln.frameshift.length(); i++) {
+        cout << aln.frameshift[i] << "  ";
+    }
+    cout << endl;
+    cout << "Output Prot: \t ";
+    for (i = 0; i < aln.prot.length(); i++) {
+        cout << aln.prot[i] << "  ";
+    }
+    cout << endl;
 }
 
 void write_to_excel(int n, int i) {
