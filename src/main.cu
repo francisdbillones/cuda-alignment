@@ -269,13 +269,13 @@ int main() {
             int* t_ins_mat_r = (int*)malloc(size);
             int* t_del_mat_r = (int*)malloc(size);
 
-            char* c_DNA_sequence = new char[N_size];
+            char* c_DNA_sequence = new char[N_size + 1];
             char* c_protein_sequence = new char[M_size];
-            char* c_DNA_sequence_r = new char[N_size];
+            char* c_DNA_sequence_r = new char[N_size + 1];
 
-            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size);
+            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size + 1);
             memcpy(c_protein_sequence, protein_sequence.c_str(), M_size);
-            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size);
+            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size + 1);
 
             scoring_init(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
                          t_ins_mat, t_del_mat, N, M);
@@ -604,13 +604,13 @@ int main() {
             int* t_ins_mat_r = (int*)malloc(size);
             int* t_del_mat_r = (int*)malloc(size);
 
-            char* c_DNA_sequence = new char[N_size];
+            char* c_DNA_sequence = new char[N_size + 1];
             char* c_protein_sequence = new char[M_size];
-            char* c_DNA_sequence_r = new char[N_size];
+            char* c_DNA_sequence_r = new char[N_size + 1];
 
-            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size);
+            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size + 1);
             memcpy(c_protein_sequence, protein_sequence.c_str(), M_size);
-            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size);
+            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size + 1);
 
             scoring_init(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
                          t_ins_mat, t_del_mat, N, M);
