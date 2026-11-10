@@ -639,7 +639,7 @@ int main() {
 
         if (top == 0) {
             for (int i = 0; i < 5; i++) {
-                DNA_sequence = dnaInputs[0];
+                DNA_sequence = dnaInputs[index_dna];
                 protein_sequence = proteinInputs[top_indexes[i]];
                 DNA_sequence_r = reverse_complement(DNA_sequence);
 
@@ -976,7 +976,7 @@ int main() {
             }
         } else if (top == 1) {
             for (int i = 0; i < 5; i++) {
-                DNA_sequence = dnaInputs[0];
+                DNA_sequence = dnaInputs[index_dna];
                 protein_sequence = proteinInputs[top_indexes[i]];
                 DNA_sequence_r = reverse_complement(DNA_sequence);
 

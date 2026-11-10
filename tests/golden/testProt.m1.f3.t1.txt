@@ -186,81 +186,81 @@ Run DNA: 1 Prot: 49
 0sp|A0A0A7EPL0|PIAL1_ARATH E4 SUMO-protein ligase PIAL1 OS=Arabidopsis thaliana OX=3702 GN=PIAL1 PE=1 SV=1
 Sequence: 0
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACCGACGTGCAATTTAGGGCCATTTTCTCCAACGTTCTGGGCGTATTTCTGTTCCTGCTGGTGGTTGCCTATCATTATATTAATGCCAATACCGGAAATAAGCCCAGTGCCAAGGCAAAATGA
+		 M  I  T  D  V  Q  F  R  A  I  F  S  N  V  L  G  V  F  L  F  L  L  V  V  A  Y  H  Y  I  N  A  N  T  G  N  K  P  S  A  K  A  K  X  
+		  X  S  P  T  C  N  L  G  P  F  S  P  T  F  W  A  Y  F  C  S  C  W  W  L  P  I  I  I  L  M  P  I  P  E  I  S  P  V  P  R  Q  N     
+		   D  H  R  R  A  I  X  G  H  F  L  Q  R  S  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  C  Q  Y  R  K  X  A  Q  C  Q  G  K  M     
 
-Frame Match: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
-Frameshift: 	 *                                                                                                                                                  
-Output Prot: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
+Frame Match: 	 N  L  G  A  H  F  L  Q  V  L  G  V  F  -  -  L  F  L  L  V  V  A  Y  I  I  L  M  P  I  P  E  N  K  P  S  A  K  
+Frameshift: 	          *  *           *                                            *                       *                 
+Output Prot: 	 N  L  G  A  N  L  L  Q  A  I  G  C  F  G  G  S  Y  L  I  A  I  A  F  M  D  V  I  P  L  P  -  N  K  P  L  L  K  
 
 Score: 64
-Start to End match in Protein: 55-103
+Start to End match in Protein: 221-256
 
 
 1sp|A0A140JWM8|C7162_ARATH Cytochrome P450 716A2 OS=Arabidopsis thaliana OX=3702 GN=CYP716A2 PE=2 SV=1
 Sequence: 1
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACCGACGTGCAATTTAGGGCCATTTTCTCCAACGTTCTGGGCGTATTTCTGTTCCTGCTGGTGGTTGCCTATCATTATATTAATGCCAATACCGGAAATAAGCCCAGTGCCAAGGCAAAATGA
+		 M  I  T  D  V  Q  F  R  A  I  F  S  N  V  L  G  V  F  L  F  L  L  V  V  A  Y  H  Y  I  N  A  N  T  G  N  K  P  S  A  K  A  K  X  
+		  X  S  P  T  C  N  L  G  P  F  S  P  T  F  W  A  Y  F  C  S  C  W  W  L  P  I  I  I  L  M  P  I  P  E  I  S  P  V  P  R  Q  N     
+		   D  H  R  R  A  I  X  G  H  F  L  Q  R  S  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  C  Q  Y  R  K  X  A  Q  C  Q  G  K  M     
 
-Frame Match: 	 I  K  T  R  A  V  V  M  A  L  M  I  S  V  K  -  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  
-Frameshift: 	       *                                         *                                                                             
-Output Prot: 	 I  K  T  R  -  -  -  M  L  L  M  P  S  M  K  P  E  A  L  R  R  Y  -  V  -  G  V  M  D  E  -  I  A  Q  K  H  -  F  E  T  E  W  
+Frame Match: 	 R  R  A  I  X  G  H  F  S  P  T  F  W  A  Y  F  V  P  A  G  W  V  A  Y  H  Y  I  N  A  -  -  -  N  P  E  I  S  P  V  P  R  Q  
+Frameshift: 	                      *                          *           *  *                                   *                          
+Output Prot: 	 R  E  A  I  D  -  H  F  S  -  -  F  K  G  F  Y  I  P  K  G  W  K  L  Y  W  S  A  T  A  T  H  K  N  P  E  Y  F  P  E  P  E  K  
 
 Score: 55
-Start to End match in Protein: 128-162
+Start to End match in Protein: 356-394
 
 
 17sp|A0A1P8AUY4|MDN1_ARATH Midasin OS=Arabidopsis thaliana OX=3702 GN=MDN1 PE=1 SV=1
 Sequence: 17
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACCGACGTGCAATTTAGGGCCATTTTCTCCAACGTTCTGGGCGTATTTCTGTTCCTGCTGGTGGTTGCCTATCATTATATTAATGCCAATACCGGAAATAAGCCCAGTGCCAAGGCAAAATGA
+		 M  I  T  D  V  Q  F  R  A  I  F  S  N  V  L  G  V  F  L  F  L  L  V  V  A  Y  H  Y  I  N  A  N  T  G  N  K  P  S  A  K  A  K  X  
+		  X  S  P  T  C  N  L  G  P  F  S  P  T  F  W  A  Y  F  C  S  C  W  W  L  P  I  I  I  L  M  P  I  P  E  I  S  P  V  P  R  Q  N     
+		   D  H  R  R  A  I  X  G  H  F  L  Q  R  S  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  C  Q  Y  R  K  X  A  Q  C  Q  G  K  M     
 
-Frame Match: 	 I  I  K  P  G  R  W  N  G  A  D  D  L  S  Q  E  V  L  V  S  -  L  D  G  S  R  R  R  D  S  R  N  C  W  Y  I  D  L  M  W  N  
-Frameshift: 	                      *                          *                                *           *        *  *                 
-Output Prot: 	 L  L  D  P  D  L  M  D  G  A  S  D  M  R  I  E  V  L  V  S  A  L  D  A  E  Q  L  R  D  -  R  S  S  W  Y  V  -  V  W  W  N  
+Frame Match: 	 M  I  T  D  V  Q  F  R  A  I  S  P  T  F  W  A  Y  F  C  S  L  -  -  -  -  -  -  L  G  G  L  A  Y  H  Y  I  N  A  I  P  E  I  S  P  S  A  K  
+Frameshift: 	                               *                             *                       *     *  *                    *              *           
+Output Prot: 	 L  Y  S  D  S  S  S  N  A  L  C  P  T  F  V  E  F  Y  C  N  L  G  L  A  W  L  Y  L  G  G  L  R  F  H  L  L  N  S  L  D  V  I  D  P  A  M  K  
 
 Score: 53
-Start to End match in Protein: 3970-4008
+Start to End match in Protein: 3189-3235
 
 
 5sp|A0A178VEK7|DUO1_ARATH Transcription factor DUO1 OS=Arabidopsis thaliana OX=3702 GN=DUO1 PE=1 SV=1
 Sequence: 5
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACCGACGTGCAATTTAGGGCCATTTTCTCCAACGTTCTGGGCGTATTTCTGTTCCTGCTGGTGGTTGCCTATCATTATATTAATGCCAATACCGGAAATAAGCCCAGTGCCAAGGCAAAATGA
+		 M  I  T  D  V  Q  F  R  A  I  F  S  N  V  L  G  V  F  L  F  L  L  V  V  A  Y  H  Y  I  N  A  N  T  G  N  K  P  S  A  K  A  K  X  
+		  X  S  P  T  C  N  L  G  P  F  S  P  T  F  W  A  Y  F  C  S  C  W  W  L  P  I  I  I  L  M  P  I  P  E  I  S  P  V  P  R  Q  N     
+		   D  H  R  R  A  I  X  G  H  F  L  Q  R  S  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  C  Q  Y  R  K  X  A  Q  C  Q  G  K  M     
 
-Frame Match: 	 S  N  Q  G  G  G  M  A  L  M  -  I  S  V  K  S  A  C  S  A  W  M  V  P  G  E  R  D  Q  -  -  -  E  L  L  A  I  I  D  L  
-Frameshift: 	                   *                                   *                             *                                   
-Output Prot: 	 S  S  Q  G  F  G  L  V  E  E  E  V  T  V  S  S  S  C  S  Q  -  M  V  P  Y  S  S  D  Q  V  G  D  E  V  L  R  L  P  D  L  
+Frame Match: 	 P  F  F  S  N  V  L  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  M  P  I  P  -  -  E  I  S  P  V  P  R  Q  
+Frameshift: 	       *              *                                            *                                         
+Output Prot: 	 P  F  Y  Y  D  I  L  G  -  -  -  -  P  A  D  S  S  E  P  L  F  A  L  P  Q  P  F  F  E  P  S  P  V  P  R  R  
 
 Score: 53
-Start to End match in Protein: 151-189
+Start to End match in Protein: 238-269
 
 
 16sp|A0A1P8ATR9|RLP9B_ARATH Receptor-like protein 9b OS=Arabidopsis thaliana OX=3702 GN=RLP9B PE=3 SV=1
 Sequence: 16
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACCGACGTGCAATTTAGGGCCATTTTCTCCAACGTTCTGGGCGTATTTCTGTTCCTGCTGGTGGTTGCCTATCATTATATTAATGCCAATACCGGAAATAAGCCCAGTGCCAAGGCAAAATGA
+		 M  I  T  D  V  Q  F  R  A  I  F  S  N  V  L  G  V  F  L  F  L  L  V  V  A  Y  H  Y  I  N  A  N  T  G  N  K  P  S  A  K  A  K  X  
+		  X  S  P  T  C  N  L  G  P  F  S  P  T  F  W  A  Y  F  C  S  C  W  W  L  P  I  I  I  L  M  P  I  P  E  I  S  P  V  P  R  Q  N     
+		   D  H  R  R  A  I  X  G  H  F  L  Q  R  S  G  R  I  S  V  P  A  G  G  C  L  S  L  Y  X  C  Q  Y  R  K  X  A  Q  C  Q  G  K  M     
 
-Frame Match: 	 C  C  R  -  -  R  -  K  C  D  I  I  K  P  G  R  V  V  -  M  A  L  D  D  S  Q  S  R  V  -  L  V  S  L  G  W  F  -  P  E  R  E  T  Q  E  L  L  L  S  X  T  X  C  -  G  W  F  
-Frameshift: 	    *                          *                 *                 *     *                          *                                         *                       *     
-Output Prot: 	 C  C  K  W  E  R  V  K  C  D  L  T  S  -  G  R  V  I  G  L  L  L  T  D  T  Y  Y  P  P  P  L  L  N  L  S  L  F  Y  P  F  G  E  L  Q  T  L  N  L  S  N  F  W  C  Q  G  W  F  
+Frame Match: 	 D  V  Q  F  R  A  I  -  F  S  N  V  S  G  R  I  S  V  S  L  L  V  G  C  L  S  L  Y  X  C  Q  -  -  Y  R  K  X  -  A  Q  V  -  P  R  Q  -  N  
+Frameshift: 	                                     *                 *  *        *                                                     *                    
+Output Prot: 	 D  I  K  F  L  D  L  S  H  N  N  F  S  G  S  L  P  M  K  F  L  I  G  C  S  S  L  H  T  L  K  L  S  Y  N  K  F  F  G  Q  I  F  P  K  Q  T  N  
 
 Score: 52
-Start to End match in Protein: 70-125
+Start to End match in Protein: 453-499
 
 
 Run DNA: 2 Prot: 0
@@ -316,81 +316,81 @@ Run DNA: 2 Prot: 49
 17sp|A0A1P8AUY4|MDN1_ARATH Midasin OS=Arabidopsis thaliana OX=3702 GN=MDN1 PE=1 SV=1
 Sequence: 17
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCAACGTGCAATTGGCCATTTTCTCCAACGTTCTGGTATTTTTCCTGCTGGTGGTTGCCTATCATTATATTAATAATACCGGAAAGCCCAGTGCCAAGGCATGA
+		 M  I  N  V  Q  L  A  I  F  S  N  V  L  V  F  F  L  L  V  V  A  Y  H  Y  I  N  N  T  G  K  P  S  A  K  A  X  
+		  X  S  T  C  N  W  P  F  S  P  T  F  W  Y  F  S  C  W  W  L  P  I  I  I  L  I  I  P  E  S  P  V  P  R  H     
+		   D  Q  R  A  I  G  H  F  L  Q  R  S  G  I  F  P  A  G  G  C  L  S  L  Y  X  X  Y  R  K  A  Q  C  Q  G  M     
 
-Frame Match: 	 I  I  K  P  G  R  W  N  G  A  D  D  L  S  Q  E  V  L  V  S  -  L  D  G  S  R  R  R  D  S  R  N  C  W  Y  I  D  L  M  W  N  
-Frameshift: 	                      *                          *                                *           *        *  *                 
-Output Prot: 	 L  L  D  P  D  L  M  D  G  A  S  D  M  R  I  E  V  L  V  S  A  L  D  A  E  Q  L  R  D  -  R  S  S  W  Y  V  -  V  W  W  N  
+Frame Match: 	 Q  L  A  I  F  S  N  R  S  G  I  F  S  C  W  W  L  L  S  Y  I  N  N  T  E  S  
+Frameshift: 	                      *           *                 *     *              *     
+Output Prot: 	 Q  E  A  L  F  S  N  R  S  G  L  V  S  R  W  -  -  L  S  Y  L  N  K  I  D  S  
 
 Score: 53
-Start to End match in Protein: 3970-4008
+Start to End match in Protein: 2166-2189
 
 
 0sp|A0A0A7EPL0|PIAL1_ARATH E4 SUMO-protein ligase PIAL1 OS=Arabidopsis thaliana OX=3702 GN=PIAL1 PE=1 SV=1
 Sequence: 0
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCAACGTGCAATTGGCCATTTTCTCCAACGTTCTGGTATTTTTCCTGCTGGTGGTTGCCTATCATTATATTAATAATACCGGAAAGCCCAGTGCCAAGGCATGA
+		 M  I  N  V  Q  L  A  I  F  S  N  V  L  V  F  F  L  L  V  V  A  Y  H  Y  I  N  N  T  G  K  P  S  A  K  A  X  
+		  X  S  T  C  N  W  P  F  S  P  T  F  W  Y  F  S  C  W  W  L  P  I  I  I  L  I  I  P  E  S  P  V  P  R  H     
+		   D  Q  R  A  I  G  H  F  L  Q  R  S  G  I  F  P  A  G  G  C  L  S  L  Y  X  X  Y  R  K  A  Q  C  Q  G  M     
 
-Frame Match: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
-Frameshift: 	 *                                                                                                                                                  
-Output Prot: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
+Frame Match: 	 S  T  C  N  W  -  P  F  S  Q  -  R  S  G  I  F  P  A  G  V  A  Y  -  H  I  L  I  I  P  E  S  P  V  -  P  R  
+Frameshift: 	                            *                             *              *                                   
+Output Prot: 	 N  T  E  N  W  R  P  Q  S  R  M  R  G  S  V  A  P  -  G  T  G  Y  D  H  M  I  I  H  P  T  R  P  V  H  P  Q  
 
 Score: 53
-Start to End match in Protein: 55-103
+Start to End match in Protein: 752-786
 
 
 3sp|A0A178VBJ0|APSR1_ARATH Protein ALTERED PHOSPHATE STARVATION RESPONSE 1 OS=Arabidopsis thaliana OX=3702 GN=APSR1 PE=2 SV=1
 Sequence: 3
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCAACGTGCAATTGGCCATTTTCTCCAACGTTCTGGTATTTTTCCTGCTGGTGGTTGCCTATCATTATATTAATAATACCGGAAAGCCCAGTGCCAAGGCATGA
+		 M  I  N  V  Q  L  A  I  F  S  N  V  L  V  F  F  L  L  V  V  A  Y  H  Y  I  N  N  T  G  K  P  S  A  K  A  X  
+		  X  S  T  C  N  W  P  F  S  P  T  F  W  Y  F  S  C  W  W  L  P  I  I  I  L  I  I  P  E  S  P  V  P  R  H     
+		   D  Q  R  A  I  G  H  F  L  Q  R  S  G  I  F  P  A  G  G  C  L  S  L  Y  X  X  Y  R  K  A  Q  C  Q  G  M     
 
-Frame Match: 	 P  T  K  C  D  D  Y  Q  N  Q  G  G  -  -  -  G  N  A  L  M  I  S  V  K  S  A  C  -  Q  L  -  G  W  F  P  E  R  E  T  -  Q  E  L  -  L  A  -  I  I  R  L  D  V  E  
-Frameshift: 	       *                 *                          *                                                                                               *              
-Output Prot: 	 P  S  K  L  S  E  Y  R  N  A  G  G  V  I  G  G  N  C  I  V  G  S  H  S  S  T  V  D  R  L  Y  A  W  -  -  E  K  K  L  Y  Q  E  V  K  Y  A  E  S  I  K  M  D  H  E  
+Frame Match: 	 R  A  I  G  H  F  S  N  V  L  Y  F  S  C  W  W  L  P  I  H  L  Y  N  N  P  E  S  P  V  P  
+Frameshift: 	                   *           *                          *  *     *     *                 
+Output Prot: 	 R  A  V  G  -  -  S  S  L  V  H  F  S  S  K  E  T  P  L  H  L  H  H  N  P  P  S  P  S  P  
 
 Score: 50
-Start to End match in Protein: 267-318
+Start to End match in Protein: 46-73
 
 
 21sp|A0A1P8B0B7|IQD29_ARATH Protein IQ-DOMAIN 29 OS=Arabidopsis thaliana OX=3702 GN=IQD29 PE=1 SV=1
 Sequence: 21
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCAACGTGCAATTGGCCATTTTCTCCAACGTTCTGGTATTTTTCCTGCTGGTGGTTGCCTATCATTATATTAATAATACCGGAAAGCCCAGTGCCAAGGCATGA
+		 M  I  N  V  Q  L  A  I  F  S  N  V  L  V  F  F  L  L  V  V  A  Y  H  Y  I  N  N  T  G  K  P  S  A  K  A  X  
+		  X  S  T  C  N  W  P  F  S  P  T  F  W  Y  F  S  C  W  W  L  P  I  I  I  L  I  I  P  E  S  P  V  P  R  H     
+		   D  Q  R  A  I  G  H  F  L  Q  R  S  G  I  F  P  A  G  G  C  L  S  L  Y  X  X  Y  R  K  A  Q  C  Q  G  M     
 
-Frame Match: 	 P  G  R  W  V  M  A  L  M  -  -  I  S  V  K  S  A  C  Q  L  G  G  S  R  -  R  E  R  L  K  E  L  L  A  I  I  R  L  -  D  V  N  V  S  
-Frameshift: 	             *                                                  *                          *                 *              *  *     
-Output Prot: 	 P  G  K  W  I  K  S  L  L  G  K  K  S  S  K  S  S  L  E  K  G  G  E  K  L  R  S  A  K  K  E  E  L  -  V  V  K  V  K  D  N  N  V  S  
+Frame Match: 	 Q  R  A  I  -  G  H  F  L  Q  R  S  G  I  -  -  F  S  C  -  W  G  C  L  S  L  Y  X  I  I  T  G  K  P  S  A  K  A  
+Frameshift: 	                                                 *              *                    *     *                       
+Output Prot: 	 Q  A  V  I  R  G  H  L  V  R  R  Q  A  V  A  T  Y  S  C  I  W  G  I  V  K  V  Q  A  L  V  R  G  K  -  K  A  R  S  
 
 Score: 49
-Start to End match in Protein: 7-49
+Start to End match in Protein: 136-172
 
 
 45sp|A0MFS9|CACLC_ARATH Anoctamin-like protein At1g73020 OS=Arabidopsis thaliana OX=3702 GN=At1g73020 PE=1 SV=1
 Sequence: 45
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCAACGTGCAATTGGCCATTTTCTCCAACGTTCTGGTATTTTTCCTGCTGGTGGTTGCCTATCATTATATTAATAATACCGGAAAGCCCAGTGCCAAGGCATGA
+		 M  I  N  V  Q  L  A  I  F  S  N  V  L  V  F  F  L  L  V  V  A  Y  H  Y  I  N  N  T  G  K  P  S  A  K  A  X  
+		  X  S  T  C  N  W  P  F  S  P  T  F  W  Y  F  S  C  W  W  L  P  I  I  I  L  I  I  P  E  S  P  V  P  R  H     
+		   D  Q  R  A  I  G  H  F  L  Q  R  S  G  I  F  P  A  G  G  C  L  S  L  Y  X  X  Y  R  K  A  Q  C  Q  G  M     
 
-Frame Match: 	 R  R  N  V  M  I  I  K  P  G  R  W  X  M  A  L  M  I  S  V  K  S  A  C  Q  -  L  G  -  -  W  -  -  -  -  F  P  R  E  R  L  K  N  V  G  Y  H  R  L  -  -  -  D  V  -  -  -  -  E  W  F  
-Frameshift: 	       *                                *                                                                       *                 *                                                     
-Output Prot: 	 R  K  N  A  A  L  L  -  -  A  R  W  Q  I  N  C  L  V  G  P  S  Q  G  Y  R  F  L  G  M  E  W  S  S  L  P  F  P  K  E  L  I  K  N  L  G  N  E  R  A  K  E  K  E  A  Y  Q  R  Y  E  W  F  
+Frame Match: 	 V  Q  L  A  I  F  S  Q  T  F  W  I  F  P  A  G  G  L  P  Y  S  L  Y  X  X  Y  R  K  A  Q  A  K  
+Frameshift: 	                      *  *        *                 *     *  *                             *     
+Output Prot: 	 I  Q  R  L  I  I  S  Q  V  F  W  T  L  M  D  G  S  L  P  Y  L  K  Y  S  -  Y  R  K  Y  R  A  R  
 
 Score: 46
-Start to End match in Protein: 253-311
+Start to End match in Protein: 426-456
 
 
 Run DNA: 3 Prot: 0
@@ -446,81 +446,81 @@ Run DNA: 3 Prot: 49
 19sp|A0A1P8AW69|KTN81_ARATH Katanin p80 WD40 repeat-containing subunit B1 homolog KTN80.1 OS=Arabidopsis thaliana OX=3702 GN=KTN80.1 PE=1 SV=1
 Sequence: 19
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 A  D  V  N  V  M  I  I  K  T  R  A  V  -  V  M  A  L  D  D  L  S  Q  -  -  E  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  I  D  L  M  V  E  M  V  S  
-Frameshift: 	                            *                          *                       *                                                        *           *     *        
-Output Prot: 	 A  D  V  -  I  S  I  L  -  T  E  K  I  E  I  L  T  L  D  M  F  S  Q  L  V  P  V  L  T  S  L  L  G  S  R  T  E  R  P  V  N  -  -  V  S  L  D  M  L  L  K  L  V  A  
+Frame Match: 	 P  D  V  N  W  I  F  S  -  -  -  -  N  V  L  A  I  F  L  L  P  A  G  R  S  I  H  Y  Y  X  C  Q  Y  S  E  S  P  V  R  
+Frameshift: 	    *           *                             *                                      *                                
+Output Prot: 	 P  D  G  R  W  V  V  S  G  G  L  D  N  V  V  K  V  W  D  L  T  A  G  K  L  L  H  E  F  K  C  -  H  -  E  G  P  I  R  
 
 Score: 55
-Start to End match in Protein: 903-952
+Start to End match in Protein: 152-188
 
 
 17sp|A0A1P8AUY4|MDN1_ARATH Midasin OS=Arabidopsis thaliana OX=3702 GN=MDN1 PE=1 SV=1
 Sequence: 17
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 I  I  K  P  G  R  W  N  G  A  D  D  L  S  Q  E  V  L  V  S  -  L  D  G  S  R  R  R  D  S  R  N  C  W  Y  I  D  L  M  W  N  
-Frameshift: 	                      *                          *                                *           *        *  *                 
-Output Prot: 	 L  L  D  P  D  L  M  D  G  A  S  D  M  R  I  E  V  L  V  S  A  L  D  A  E  Q  L  R  D  -  R  S  S  W  Y  V  -  V  W  W  N  
+Frame Match: 	 S  L  P  T  S  I  G  I  F  S  N  R  S  G  -  -  R  Y  -  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  
+Frameshift: 	                                  *                                                                       
+Output Prot: 	 S  M  G  S  S  L  G  I  Y  S  S  D  S  H  K  R  R  V  E  M  C  Y  N  I  F  G  F  Y  I  Q  F  L  P  V  V  
 
 Score: 54
-Start to End match in Protein: 3970-4008
+Start to End match in Protein: 3861-3895
 
 
 15sp|A0A1P8ASY1|JHS1_ARATH DNA replication ATP-dependent helicase/nuclease JHS1 OS=Arabidopsis thaliana OX=3702 GN=JHS1 PE=2 SV=1
 Sequence: 15
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 P  T  V  N  V  M  I  I  K  P  G  R  W  N  G  A  D  D  L  S  Q  E  C  -  L  V  S  L  D  G  S  R  E  -  -  R  E  T  -  Q  E  L  L  G  -  Y  H  R  L  D  V  
-Frameshift: 	       *                                *                                *                       *                                *                       
-Output Prot: 	 P  T  T  P  V  E  I  H  T  I  D  K  Y  Q  G  R  D  -  -  -  K  D  C  I  L  V  S  F  V  R  S  R  E  K  P  R  S  S  A  S  S  L  L  G  D  W  H  R  I  N  V  
+Frame Match: 	 S  L  P  T  S  I  G  I  F  P  T  F  W  A  I  F  S  A  F  L  L  V  G  S  I  H  Y  Y  L  M  P  I  L  E  S  P  -  V  R  Q  N  
+Frameshift: 	                            *                    *     *              *           *  *              *                       
+Output Prot: 	 A  L  P  V  S  I  G  -  -  P  L  L  F  A  -  -  S  T  F  V  L  V  G  D  -  H  Y  Q  L  P  P  L  V  Q  S  T  E  A  R  E  N  
 
 Score: 54
-Start to End match in Protein: 1237-1284
+Start to End match in Protein: 1061-1096
 
 
 0sp|A0A0A7EPL0|PIAL1_ARATH E4 SUMO-protein ligase PIAL1 OS=Arabidopsis thaliana OX=3702 GN=PIAL1 PE=1 SV=1
 Sequence: 0
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
-Frameshift: 	 *                                                                                                                                                  
-Output Prot: 	 C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F  
+Frame Match: 	 S  L  P  T  S  N  W  H  F  -  L  P  T  S  G  R  Y  F  C  -  -  L  S  C  W  S  V  Y  H  Y  I  N  A  N  T  R  K  P  S  
+Frameshift: 	                *                 *     *                       *  *                 *                       *        
+Output Prot: 	 S  C  P  I  S  R  T  R  I  K  L  P  V  K  G  -  H  V  C  K  H  L  Q  C  F  D  F  W  N  Y  V  N  M  N  T  R  R  P  S  
 
 Score: 53
-Start to End match in Protein: 55-103
+Start to End match in Protein: 282-319
 
 
 46sp|A0SVK0|DOG1_ARATH Protein DELAY OF GERMINATION 1 OS=Arabidopsis thaliana OX=3702 GN=DOG1 PE=1 SV=1
 Sequence: 46
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 R  N  V  D  D  Y  Q  N  Q  G  G  G  N  G  A  D  -  -  D  L  S  Q  E  C  L  S  
-Frameshift: 	    *     *           *                                                        
-Output Prot: 	 R  N  I  D  G  Y  E  S  S  G  G  G  G  G  A  S  L  S  D  L  S  A  E  Q  L  A  
+Frame Match: 	 S  L  P  T  S  I  G  I  F  S  N  V  L  G  -  D  F  L  L  P  A  G  R  S  I  H  I  L  M  
+Frameshift: 	                                                 *                             *        
+Output Prot: 	 T  L  A  K  I  L  G  I  L  S  P  V  Q  G  A  D  F  L  L  -  A  G  K  K  L  H  L  S  M  
 
 Score: 52
-Start to End match in Protein: 122-147
+Start to End match in Protein: 221-248
 
 
 Run DNA: 4 Prot: 0
@@ -576,80 +576,80 @@ Run DNA: 4 Prot: 49
 24sp|A0A1P8B590|IQD19_ARATH Protein IQ-DOMAIN 19 OS=Arabidopsis thaliana OX=3702 GN=IQD19 PE=1 SV=1
 Sequence: 24
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	GGAATATTCCCAATCTTCCATGTATTCATCTCCAAGTTCTTGGAGCTCATCACAAGAATCACTCTTATGGAACGAGAGCTGTTTCTTGGATCAATCATCTGAACCTCAAGCCTTCTTTTGCCCTAATTATGATTACTCCGATGACTTTTT
+		 G  I  F  P  I  F  H  V  F  I  S  K  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  S  S  L  L  L  P  X  L  X  L  L  R  X  L  F  
+		  E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  C  P  N  Y  D  Y  S  D  D  F     
+		   N  I  P  N  L  P  C  I  H  L  Q  V  L  G  A  H  H  K  N  H  S  Y  G  T  R  A  V  S  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F     
 
-Frame Match: 	 M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  S  Q  Q  E  C  -  -  -  L  S  A  W  M  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-Frameshift: 	                                              *     *                                *                                                              
-Output Prot: 	 M  Q  R  S  S  S  Q  L  G  S  N  T  A  K  E  S  Q  Q  H  H  H  H  Q  Y  Y  P  W  M  A  I  K  L  D  R  -  S  N  I  S  L  M  E  S  E  C  G  S  T  S  
+Frame Match: 	 Q  S  S  M  Y  S  -  S  P  S  S  L  -  E  L  I  T  R  I  H  S  Y  G  T  E  S  C  -  -  F  -  L  D  Q  S  S  E  P  Q  A  F  -  -  F  C  P  N  Y  D  Y  S  D  D  
+Frameshift: 	                                  *                       *              *                                                                                      
+Output Prot: 	 Q  S  K  M  Y  S  P  A  P  S  A  L  T  E  M  S  P  R  A  Y  S  S  H  F  E  D  C  N  S  F  N  T  A  Q  S  S  -  P  Q  C  F  S  R  F  -  K  E  Y  -  Y  N  G  D  
 
 Score: 67
-Start to End match in Protein: 378-425
+Start to End match in Protein: 265-314
 
 
 17sp|A0A1P8AUY4|MDN1_ARATH Midasin OS=Arabidopsis thaliana OX=3702 GN=MDN1 PE=1 SV=1
 Sequence: 17
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	GGAATATTCCCAATCTTCCATGTATTCATCTCCAAGTTCTTGGAGCTCATCACAAGAATCACTCTTATGGAACGAGAGCTGTTTCTTGGATCAATCATCTGAACCTCAAGCCTTCTTTTGCCCTAATTATGATTACTCCGATGACTTTTT
+		 G  I  F  P  I  F  H  V  F  I  S  K  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  S  S  L  L  L  P  X  L  X  L  L  R  X  L  F  
+		  E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  C  P  N  Y  D  Y  S  D  D  F     
+		   N  I  P  N  L  P  C  I  H  L  Q  V  L  G  A  H  H  K  N  H  S  Y  G  T  R  A  V  S  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F     
 
-Frame Match: 	 I  I  K  P  G  R  W  N  G  A  D  D  L  S  Q  E  V  L  V  S  -  L  D  G  S  R  R  R  D  S  R  N  C  W  Y  I  D  L  M  W  N  
-Frameshift: 	                      *                          *                                *           *        *  *                 
-Output Prot: 	 L  L  D  P  D  L  M  D  G  A  S  D  M  R  I  E  V  L  V  S  A  L  D  A  E  Q  L  R  D  -  R  S  S  W  Y  V  -  V  W  W  N  
+Frame Match: 	 Y  S  S  Q  V  L  E  S  S  Q  E  S  L  L  W  N  R  E  -  L  V  S  -  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F  
+Frameshift: 	          *     *     *                          *           *                                                                       
+Output Prot: 	 Y  N  S  L  L  L  Q  S  S  Q  E  A  L  F  S  N  R  S  G  L  V  S  R  W  L  S  Y  L  N  -  K  I  D  S  S  L  V  E  -  N  P  L  F  F  
 
 Score: 65
-Start to End match in Protein: 3970-4008
+Start to End match in Protein: 2157-2198
 
 
 23sp|A0A1P8B554|THLP1_ARATH Thaumatin-like protein 1 OS=Arabidopsis thaliana OX=3702 GN=TLP1 PE=2 SV=1
 Sequence: 23
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	GGAATATTCCCAATCTTCCATGTATTCATCTCCAAGTTCTTGGAGCTCATCACAAGAATCACTCTTATGGAACGAGAGCTGTTTCTTGGATCAATCATCTGAACCTCAAGCCTTCTTTTGCCCTAATTATGATTACTCCGATGACTTTTT
+		 G  I  F  P  I  F  H  V  F  I  S  K  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  S  S  L  L  L  P  X  L  X  L  L  R  X  L  F  
+		  E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  C  P  N  Y  D  Y  S  D  D  F     
+		   N  I  P  N  L  P  C  I  H  L  Q  V  L  G  A  H  H  K  N  H  S  Y  G  T  R  A  V  S  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F     
 
-Frame Match: 	 R  K  C  D  D  Y  Q  T  R  A  V  G  N  G  A  D  D  S  V  K  S  A  C  Q  L  D  G  S  P  E  E  R  L  K  N  C  W  L  S  X  T  X  C  -  -  G  M  V  S  
-Frameshift: 	                                  *                 *                    *           *     *                                                        
-Output Prot: 	 Q  K  C  P  T  -  E  L  R  -  F  G  S  G  S  -  -  A  C  K  S  A  C  E  A  F  G  S  P  E  Y  C  C  S  G  A  Y  A  S  P  T  E  C  K  P  S  M  Y  S  
+Frame Match: 	 E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  -  -  S  W  S  I  -  I  -  -  X  T  S  S  F  F  C  P  N  Y  D  Y  S  M  T  F  
+Frameshift: 	 *                                                                                      *     *                             *                          *        
+Output Prot: 	 E  Y  C  C  S  G  A  Y  A  S  P  T  E  C  K  P  S  M  Y  S  E  I  F  K  S  A  C  P  R  S  Y  S  Y  A  F  D  D  A  T  S  T  F  T  C  T  D  A  D  Y  T  I  T  F  
 
 Score: 63
-Start to End match in Protein: 177-221
+Start to End match in Protein: 202-254
 
 
 46sp|A0SVK0|DOG1_ARATH Protein DELAY OF GERMINATION 1 OS=Arabidopsis thaliana OX=3702 GN=DOG1 PE=1 SV=1
 Sequence: 46
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	GGAATATTCCCAATCTTCCATGTATTCATCTCCAAGTTCTTGGAGCTCATCACAAGAATCACTCTTATGGAACGAGAGCTGTTTCTTGGATCAATCATCTGAACCTCAAGCCTTCTTTTGCCCTAATTATGATTACTCCGATGACTTTTT
+		 G  I  F  P  I  F  H  V  F  I  S  K  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  S  S  L  L  L  P  X  L  X  L  L  R  X  L  F  
+		  E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  C  P  N  Y  D  Y  S  D  D  F     
+		   N  I  P  N  L  P  C  I  H  L  Q  V  L  G  A  H  H  K  N  H  S  Y  G  T  R  A  V  S  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F     
 
-Frame Match: 	 R  N  V  D  D  Y  Q  N  Q  G  G  G  N  G  A  D  -  -  D  L  S  Q  E  C  L  S  
-Frameshift: 	    *     *           *                                                        
-Output Prot: 	 R  N  I  D  G  Y  E  S  S  G  G  G  G  G  A  S  L  S  D  L  S  A  E  Q  L  A  
+Frame Match: 	 S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  -  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  A  L  I  Y  
+Frameshift: 	                                                                                                          *           *  
+Output Prot: 	 S  S  N  Y  Y  A  P  T  -  W  N  S  P  L  E  N  A  L  I  W  M  G  G  C  -  -  -  -  -  -  R  P  S  S  F  F  R  L  V  Y  
 
 Score: 61
-Start to End match in Protein: 122-147
+Start to End match in Protein: 74-106
 
 
 45sp|A0MFS9|CACLC_ARATH Anoctamin-like protein At1g73020 OS=Arabidopsis thaliana OX=3702 GN=At1g73020 PE=1 SV=1
 Sequence: 45
 
-DNA Input:	TGTGCCGACGTAAATGTGATGATTATCAAACCAGGGCGGTGGTAATGGCGCTGATGATCTCAGTCAAGAGTGCTTGTCAGCTTGGATGGTTCCCGGAGAGAGAGACTCAAGAATTGTTGGCTATCATAGACTTGATGTGGAATGGTTTCA
-		 C  A  D  V  N  V  M  I  I  K  P  G  R  W  X  W  R  X  X  S  Q  S  R  V  L  V  S  L  D  G  S  R  R  E  R  L  K  N  C  W  L  S  X  T  X  C  G  M  V  S  
-		  V  P  T  X  M  X  X  L  S  N  Q  G  G  G  N  G  A  D  D  L  S  Q  E  C  L  S  A  W  M  V  P  G  E  R  D  S  R  I  V  G  Y  H  R  L  D  V  E  W  F     
-		   C  R  R  K  C  D  D  Y  Q  T  R  A  V  V  M  A  L  M  I  S  V  K  S  A  C  Q  L  G  W  F  P  E  R  E  T  Q  E  L  L  A  I  I  D  L  M  W  N  G  F     
+DNA Input:	GGAATATTCCCAATCTTCCATGTATTCATCTCCAAGTTCTTGGAGCTCATCACAAGAATCACTCTTATGGAACGAGAGCTGTTTCTTGGATCAATCATCTGAACCTCAAGCCTTCTTTTGCCCTAATTATGATTACTCCGATGACTTTTT
+		 G  I  F  P  I  F  H  V  F  I  S  K  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  S  S  L  L  L  P  X  L  X  L  L  R  X  L  F  
+		  E  Y  S  Q  S  S  M  Y  S  S  P  S  S  W  S  S  S  Q  E  S  L  L  W  N  E  S  C  F  L  D  Q  S  S  E  P  Q  A  F  F  C  P  N  Y  D  Y  S  D  D  F     
+		   N  I  P  N  L  P  C  I  H  L  Q  V  L  G  A  H  H  K  N  H  S  Y  G  T  R  A  V  S  W  I  N  H  L  N  L  K  P  S  F  A  L  I  M  I  T  P  M  T  F     
 
-Frame Match: 	 R  R  N  V  M  I  I  K  P  G  R  W  X  M  A  L  M  I  S  V  K  S  A  C  Q  -  L  G  -  -  W  -  -  -  -  F  P  R  E  R  L  K  N  V  G  Y  H  R  L  -  -  -  D  V  -  -  -  -  E  W  F  
-Frameshift: 	       *                                *                                                                       *                 *                                                     
-Output Prot: 	 R  K  N  A  A  L  L  -  -  A  R  W  Q  I  N  C  L  V  G  P  S  Q  G  Y  R  F  L  G  M  E  W  S  S  L  P  F  P  K  E  L  I  K  N  L  G  N  E  R  A  K  E  K  E  A  Y  Q  R  Y  E  W  F  
+Frame Match: 	 G  I  F  P  I  F  H  V  F  I  S  K  -  F  L  E  L  I  T  R  I  T  L  M  E  R  E  L  F  L  G  S  I  I  X  T  L  K  P  -  S  L  P  X  L  D  Y  S  
+Frameshift: 	                                                                                                             *              *           *        
+Output Prot: 	 G  I  F  -  -  Y  H  V  L  L  H  R  N  F  M  T  L  -  -  R  Q  V  L  I  Q  R  -  L  I  I  S  Q  V  F  W  T  L  M  D  G  S  L  P  Y  L  K  Y  S  
 
 Score: 60
-Start to End match in Protein: 253-311
+Start to End match in Protein: 407-449
 
 
