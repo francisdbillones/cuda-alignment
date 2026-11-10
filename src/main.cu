@@ -377,12 +377,25 @@ int main() {
     double total_r = 0.0;
     const size_t num_prots = min<size_t>(proteinInputs.size(), 4096);
 
+    // HITS_DUMP=path dumps
+    // "read protein score i j reverse"
+    // for everything
+    // need this to make sure our kernel still generates the same thing
+    std::ofstream hits_dump;
+    if (const char* path = std::getenv("HITS_DUMP"))
+        hits_dump.open(path);
+
     for (int index_dna = 0; index_dna < dnaInputs.size(); index_dna++) {
         const vector<Hit> hits =
             mode == 0
                 ? score_all_cpu(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r)
                 : score_all_cuda(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r);
         cout << "Total runtime: " << total_r << endl;
+
+        if (hits_dump.is_open())
+            for (size_t p = 0; p < hits.size(); p++)
+                hits_dump << index_dna << ' ' << p << ' ' << hits[p].score << ' ' << hits[p].i
+                          << ' ' << hits[p].j << ' ' << hits[p].reverse << '\n';
 
         const std::array<Ranked, 5> best = top5(hits);
         int index[4] = {}, index_r[4] = {};
