@@ -1,6 +1,9 @@
 #ifndef CODON_CUH
 #define CODON_CUH
 
+#include <algorithm>
+#include <string>
+
 __host__ __device__ inline int nucleotide_index(const char base) {
     switch (base) {
     case 'T':
@@ -49,6 +52,27 @@ __host__ __device__ inline char translate_codon(const char* codon) {
         return box[0];
     else
         return ' ';
+}
+
+__host__ __device__ inline char complement(const char base) {
+    switch (base) {
+    case 'A':
+        return 'T';
+    case 'T':
+        return 'A';
+    case 'C':
+        return 'G';
+    case 'G':
+        return 'C';
+    default:
+        return '\0';
+    }
+}
+
+inline std::string reverse_complement(std::string dna) {
+    std::reverse(dna.begin(), dna.end());
+    std::transform(dna.begin(), dna.end(), dna.begin(), complement);
+    return dna;
 }
 
 #endif // CODON_CUH

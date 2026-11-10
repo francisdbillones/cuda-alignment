@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include <algorithm>
@@ -37,7 +36,6 @@ using std::milli;
 using std::min;
 using std::string;
 using std::to_string;
-using std::unordered_map;
 using std::vector;
 using std::chrono::duration;
 using std::chrono::steady_clock;
@@ -78,16 +76,6 @@ void check(T err, const char* const func, const char* const file, const int line
         ;
         exit(1);
     }
-}
-
-string reverse_complement(string str) {
-    unordered_map<char, char> RC{{'A', 'T'}, {'C', 'G'}, {'T', 'A'}, {'G', 'C'}};
-
-    reverse(str.begin(), str.end());
-    for (unsigned int i = 0; i < str.length(); i++) {
-        str[i] = RC[str[i]];
-    }
-    return str;
 }
 
 void three_frame(char* str, string* frame_one, string* frame_two, string* frame_three) {
