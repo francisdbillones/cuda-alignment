@@ -8,8 +8,9 @@
 #undef __CUDACC__
 #endif // __INTELLISENSE__
 
-#include "blosum62.cuh"
+#include "blosum62_device.cuh"
 #include "codon.cuh"
+#include "cuda_check.cuh"
 
 namespace cg = cooperative_groups;
 
@@ -21,6 +22,13 @@ constexpr int infn = -999;
 __constant__ int c_gep = 2;   // extend penalty
 __constant__ int c_gop = 3;   // opening penalty
 __constant__ int c_shift = 4; // shift penalty
+
+void upload_blosum62_tables() {
+    checkCudaErrors(cudaMemcpyToSymbol(d_blosum62mat, blosum62mat, sizeof(blosum62mat), 0,
+                                       cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpyToSymbol(d_prot_to_idx, prot_to_idx, sizeof(prot_to_idx), 0,
+                                       cudaMemcpyHostToDevice));
+}
 
 void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int* del_mat,
                   int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M) {
@@ -127,8 +135,8 @@ void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* i
     char prot_seq;
 
     for (int i = 4; i < N; i++) {
+        prot_seq = translate_codon(input_seq + i - 1);
         for (int j = 1; j < M; j++) {
-            prot_seq = translate_codon(input_seq + i - 1);
             scoring = score(prot_seq, ref_seq[j - 1]);
             insert = ins_mat[i * M + (j - 1)] - gep;
             xscore = sc_mat[i * M + (j - 1)] - gop - gep;
@@ -180,7 +188,7 @@ void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* i
     }
 }
 
-__global__ void scoring_cuda(const char* __restrict__ input_seq, const char* __restrict__ ref_seq,
+__global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __restrict__ ref_seq,
                              int* __restrict__ u_sc_mat, int* __restrict__ u_ins_mat,
                              int* __restrict__ u_del_mat, int* __restrict__ u_t_sc_mat,
                              int* __restrict__ u_t_ins_mat, int* __restrict__ u_t_del_mat,
@@ -213,7 +221,7 @@ __global__ void scoring_cuda(const char* __restrict__ input_seq, const char* __r
                     u_sc_mat[i * M + j] = 0;
                     u_t_sc_mat[i * M + j] = infn;
                 } else {
-                    prot_seq = translate_codon(input_seq + i - 1);
+                    prot_seq = codon_aa[i];
                     scoring = score(prot_seq, ref_seq[j - 1]);
                     insert = u_ins_mat[i * M + (j - 1)] - c_gep;
                     xscore = u_sc_mat[i * M + (j - 1)] - c_gop - c_gep;

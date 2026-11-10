@@ -1,4 +1,4 @@
-#include "blosum62.cuh"
+#include "blosum62.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -6,17 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "cuda_check.cuh"
-
 #ifndef CUDA_ALIGNMENT_DATA_DIR
 #define CUDA_ALIGNMENT_DATA_DIR "./data"
 #endif
 
 int blosum62mat[24][24];
-__constant__ int d_blosum62mat[24][24];
 
 int prot_to_idx[128];
-__constant__ int d_prot_to_idx[128];
 
 void initialize_protein_to_int_map() {
 
@@ -49,12 +45,9 @@ void initialize_protein_to_int_map() {
 
     for (int i = 0; i < 128; ++i)
         prot_to_idx[i] = host_map[i];
-
-    checkCudaErrors(cudaMemcpyToSymbol(d_prot_to_idx, host_map.data(),
-                                       sizeof(int) * host_map.size(), 0, cudaMemcpyHostToDevice));
 }
 
-void readBlosum62() {
+void read_blosum62() {
     std::ifstream file(CUDA_ALIGNMENT_DATA_DIR "/BLOSUM62.txt");
     if (!file.is_open()) {
         std::cerr << "Error opening the BLOSUM62 file!" << std::endl;

@@ -11,7 +11,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-#include "blosum62.cuh"
+#include "blosum62.h"
 #include "codon.cuh"
 #include "cuda_check.cuh"
 #include "fasta.h"
@@ -234,9 +234,9 @@ int main() {
     checkCudaErrors(cudaGetDevice(&device));
     checkCudaErrors(cudaSetDevice(device));
 
-    readBlosum62();
-    cudaMemcpyToSymbol(d_blosum62mat, blosum62mat, sizeof(blosum62mat), 0, cudaMemcpyHostToDevice);
+    read_blosum62();
     initialize_protein_to_int_map();
+    upload_blosum62_tables();
 
     do {
         file_name.clear();
@@ -404,9 +404,9 @@ int main() {
                 }
             } else if (mode == 1) {
 
-                char* d_DNA_sequence;
+                char* d_codon_aa;
                 char* d_protein_sequence;
-                char* d_DNA_sequence_r;
+                char* d_codon_aa_r;
 
                 int* d_sc_mat;
                 int* d_ins_mat;
@@ -429,16 +429,18 @@ int main() {
                 if (frame == 6)
                     checkCudaErrors(cudaStreamCreate(&stream2));
 
-                checkCudaErrors(cudaMalloc(&d_DNA_sequence, N_size));
+                checkCudaErrors(cudaMalloc(&d_codon_aa, N_size));
                 checkCudaErrors(cudaMalloc(&d_protein_sequence, M_size));
-                checkCudaErrors(cudaMalloc(&d_DNA_sequence_r, N_size));
+                checkCudaErrors(cudaMalloc(&d_codon_aa_r, N_size));
 
-                checkCudaErrors(
-                    cudaMemcpy(d_DNA_sequence, c_DNA_sequence, N_size, cudaMemcpyHostToDevice));
+                checkCudaErrors(cudaMemcpy(d_codon_aa,
+                                           translate_each_position(c_DNA_sequence, N).data(),
+                                           N_size, cudaMemcpyHostToDevice));
                 checkCudaErrors(cudaMemcpy(d_protein_sequence, c_protein_sequence, M_size,
                                            cudaMemcpyHostToDevice));
-                checkCudaErrors(
-                    cudaMemcpy(d_DNA_sequence_r, c_DNA_sequence_r, N_size, cudaMemcpyHostToDevice));
+                checkCudaErrors(cudaMemcpy(d_codon_aa_r,
+                                           translate_each_position(c_DNA_sequence_r, N).data(),
+                                           N_size, cudaMemcpyHostToDevice));
 
                 checkCudaErrors(cudaMalloc(&d_sc_mat, size));
                 checkCudaErrors(cudaMalloc(&d_ins_mat, size));
@@ -514,7 +516,7 @@ int main() {
                             currGridDim = dim3(curr_diag_blocks, 1);
                         }
                         scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                            d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                            d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                             d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N, (unsigned int)M,
                             diag, submatrixSide, first_sub_y_curr_diag);
                     }
@@ -558,14 +560,13 @@ int main() {
                             currGridDim = dim3(curr_diag_blocks, 1);
                         }
                         scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                            d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                            d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                             d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N, (unsigned int)M,
                             diag, submatrixSide, first_sub_y_curr_diag);
                         scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
-                            d_DNA_sequence_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r,
-                            d_del_mat_r, d_t_sc_mat_r, d_t_ins_mat_r, d_t_del_mat_r,
-                            (unsigned int)N, (unsigned int)M, diag, submatrixSide,
-                            first_sub_y_curr_diag);
+                            d_codon_aa_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r, d_del_mat_r,
+                            d_t_sc_mat_r, d_t_ins_mat_r, d_t_del_mat_r, (unsigned int)N,
+                            (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
                     }
                     checkCudaErrors(cudaStreamSynchronize(stream1));
                     checkCudaErrors(cudaStreamSynchronize(stream2));
@@ -613,9 +614,9 @@ int main() {
                     // write_to_excel(index_dna, index_prot);
                 }
 
-                checkCudaErrors(cudaFree(d_DNA_sequence));
+                checkCudaErrors(cudaFree(d_codon_aa));
                 checkCudaErrors(cudaFree(d_protein_sequence));
-                checkCudaErrors(cudaFree(d_DNA_sequence_r));
+                checkCudaErrors(cudaFree(d_codon_aa_r));
 
                 checkCudaErrors(cudaFree(d_sc_mat));
                 checkCudaErrors(cudaFree(d_ins_mat));
@@ -762,9 +763,9 @@ int main() {
                 } else if (mode == 1 && top_hold == top_scores[i]) {
                     cout << proteinIdInputs[top_indexes[i]] << endl
                          << "Sequence: " << top_indexes[i] << endl;
-                    char* d_DNA_sequence;
+                    char* d_codon_aa;
                     char* d_protein_sequence;
-                    char* d_DNA_sequence_r;
+                    char* d_codon_aa_r;
 
                     int* d_sc_mat;
                     int* d_ins_mat;
@@ -787,16 +788,18 @@ int main() {
                     if (frame == 6)
                         checkCudaErrors(cudaStreamCreate(&stream2));
 
-                    checkCudaErrors(cudaMalloc(&d_DNA_sequence, N_size));
+                    checkCudaErrors(cudaMalloc(&d_codon_aa, N_size));
                     checkCudaErrors(cudaMalloc(&d_protein_sequence, M_size));
-                    checkCudaErrors(cudaMalloc(&d_DNA_sequence_r, N_size));
+                    checkCudaErrors(cudaMalloc(&d_codon_aa_r, N_size));
 
-                    checkCudaErrors(
-                        cudaMemcpy(d_DNA_sequence, c_DNA_sequence, N_size, cudaMemcpyHostToDevice));
+                    checkCudaErrors(cudaMemcpy(d_codon_aa,
+                                               translate_each_position(c_DNA_sequence, N).data(),
+                                               N_size, cudaMemcpyHostToDevice));
                     checkCudaErrors(cudaMemcpy(d_protein_sequence, c_protein_sequence, M_size,
                                                cudaMemcpyHostToDevice));
-                    checkCudaErrors(cudaMemcpy(d_DNA_sequence_r, c_DNA_sequence_r, N_size,
-                                               cudaMemcpyHostToDevice));
+                    checkCudaErrors(cudaMemcpy(d_codon_aa_r,
+                                               translate_each_position(c_DNA_sequence_r, N).data(),
+                                               N_size, cudaMemcpyHostToDevice));
 
                     checkCudaErrors(cudaMalloc(&d_sc_mat, size));
                     checkCudaErrors(cudaMalloc(&d_ins_mat, size));
@@ -877,7 +880,7 @@ int main() {
                                 currGridDim = dim3(curr_diag_blocks, 1);
                             }
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                                d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                                d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                                 d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N,
                                 (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
                         }
@@ -919,11 +922,11 @@ int main() {
                                 currGridDim = dim3(curr_diag_blocks, 1);
                             }
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                                d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                                d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                                 d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N,
                                 (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
-                                d_DNA_sequence_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r,
+                                d_codon_aa_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r,
                                 d_del_mat_r, d_t_sc_mat_r, d_t_ins_mat_r, d_t_del_mat_r,
                                 (unsigned int)N, (unsigned int)M, diag, submatrixSide,
                                 first_sub_y_curr_diag);
@@ -970,9 +973,9 @@ int main() {
                         }
                     }
 
-                    checkCudaErrors(cudaFree(d_DNA_sequence));
+                    checkCudaErrors(cudaFree(d_codon_aa));
                     checkCudaErrors(cudaFree(d_protein_sequence));
-                    checkCudaErrors(cudaFree(d_DNA_sequence_r));
+                    checkCudaErrors(cudaFree(d_codon_aa_r));
 
                     checkCudaErrors(cudaFree(d_sc_mat));
                     checkCudaErrors(cudaFree(d_ins_mat));
@@ -1117,9 +1120,9 @@ int main() {
                 } else if (mode == 1) {
                     cout << proteinIdInputs[top_indexes[i]] << endl
                          << "Sequence: " << top_indexes[i] << endl;
-                    char* d_DNA_sequence;
+                    char* d_codon_aa;
                     char* d_protein_sequence;
-                    char* d_DNA_sequence_r;
+                    char* d_codon_aa_r;
 
                     int* d_sc_mat;
                     int* d_ins_mat;
@@ -1142,16 +1145,18 @@ int main() {
                     if (frame == 6)
                         checkCudaErrors(cudaStreamCreate(&stream2));
 
-                    checkCudaErrors(cudaMalloc(&d_DNA_sequence, N_size));
+                    checkCudaErrors(cudaMalloc(&d_codon_aa, N_size));
                     checkCudaErrors(cudaMalloc(&d_protein_sequence, M_size));
-                    checkCudaErrors(cudaMalloc(&d_DNA_sequence_r, N_size));
+                    checkCudaErrors(cudaMalloc(&d_codon_aa_r, N_size));
 
-                    checkCudaErrors(
-                        cudaMemcpy(d_DNA_sequence, c_DNA_sequence, N_size, cudaMemcpyHostToDevice));
+                    checkCudaErrors(cudaMemcpy(d_codon_aa,
+                                               translate_each_position(c_DNA_sequence, N).data(),
+                                               N_size, cudaMemcpyHostToDevice));
                     checkCudaErrors(cudaMemcpy(d_protein_sequence, c_protein_sequence, M_size,
                                                cudaMemcpyHostToDevice));
-                    checkCudaErrors(cudaMemcpy(d_DNA_sequence_r, c_DNA_sequence_r, N_size,
-                                               cudaMemcpyHostToDevice));
+                    checkCudaErrors(cudaMemcpy(d_codon_aa_r,
+                                               translate_each_position(c_DNA_sequence_r, N).data(),
+                                               N_size, cudaMemcpyHostToDevice));
 
                     checkCudaErrors(cudaMalloc(&d_sc_mat, size));
                     checkCudaErrors(cudaMalloc(&d_ins_mat, size));
@@ -1232,7 +1237,7 @@ int main() {
                                 currGridDim = dim3(curr_diag_blocks, 1);
                             }
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                                d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                                d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                                 d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N,
                                 (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
                         }
@@ -1274,11 +1279,11 @@ int main() {
                                 currGridDim = dim3(curr_diag_blocks, 1);
                             }
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                                d_DNA_sequence, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
+                                d_codon_aa, d_protein_sequence, d_sc_mat, d_ins_mat, d_del_mat,
                                 d_t_sc_mat, d_t_ins_mat, d_t_del_mat, (unsigned int)N,
                                 (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
                             scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
-                                d_DNA_sequence_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r,
+                                d_codon_aa_r, d_protein_sequence, d_sc_mat_r, d_ins_mat_r,
                                 d_del_mat_r, d_t_sc_mat_r, d_t_ins_mat_r, d_t_del_mat_r,
                                 (unsigned int)N, (unsigned int)M, diag, submatrixSide,
                                 first_sub_y_curr_diag);
@@ -1325,9 +1330,9 @@ int main() {
                         }
                     }
 
-                    checkCudaErrors(cudaFree(d_DNA_sequence));
+                    checkCudaErrors(cudaFree(d_codon_aa));
                     checkCudaErrors(cudaFree(d_protein_sequence));
-                    checkCudaErrors(cudaFree(d_DNA_sequence_r));
+                    checkCudaErrors(cudaFree(d_codon_aa_r));
 
                     checkCudaErrors(cudaFree(d_sc_mat));
                     checkCudaErrors(cudaFree(d_ins_mat));
@@ -1380,9 +1385,6 @@ int main() {
         delete[] index;
         delete[] index_r;
     }
-
-    cudaFree(d_prot_to_idx);
-    cudaFree(d_blosum62mat);
 
     return 0;
 }

@@ -1,16 +1,12 @@
-#ifndef BLOSUM62_CUH
-#define BLOSUM62_CUH
+#ifndef BLOSUM62_DEVICE_CUH
+#define BLOSUM62_DEVICE_CUH
 
 #include <cuda_runtime.h>
 
-extern int blosum62mat[24][24];
-extern __constant__ int d_blosum62mat[24][24];
+#include "blosum62.h"
 
-extern int prot_to_idx[128];
-extern __constant__ int d_prot_to_idx[128];
-
-void initialize_protein_to_int_map();
-void readBlosum62();
+__constant__ int d_blosum62mat[24][24];
+__constant__ int d_prot_to_idx[128];
 
 __host__ __device__ inline int place(const char a) {
 #ifdef __CUDA_ARCH__
@@ -29,4 +25,4 @@ __host__ __device__ inline int score(const char a, const char b) {
 #endif
 }
 
-#endif // BLOSUM62_CUH
+#endif // BLOSUM62_DEVICE_CUH

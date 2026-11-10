@@ -20,12 +20,7 @@ endif()
 set(CUDA_ALIGNMENT_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data" CACHE PATH
     "Directory containing BLOSUM62.txt and the input .fasta files")
 
-add_executable(cuda_alignment src/main.cu src/blosum62.cu src/fasta.cpp src/scoring.cu)
-
-# Kernels in scoring.cu read __constant__ tables defined in blosum62.cu, and
-# main.cu launches a kernel defined in scoring.cu. Both need
-# relocatable device code (-rdc=true) and a device link step.
-set_target_properties(cuda_alignment PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+add_executable(cuda_alignment src/main.cu src/blosum62.cpp src/fasta.cpp src/scoring.cu)
 
 target_include_directories(cuda_alignment PRIVATE include)
 

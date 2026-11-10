@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <vector>
 
 __host__ __device__ inline int nucleotide_index(const char base) {
     switch (base) {
@@ -76,7 +77,15 @@ inline std::string reverse_complement(std::string dna) {
     return dna;
 }
 
-inline void three_frame(const char* str, std::string* frame_one, std::string* frame_two, std::string* frame_three) {
+inline std::vector<char> translate_each_position(const char* dna, const size_t n) {
+    std::vector<char> aa(n, ' ');
+    for (size_t i = 1; i + 1 < n; ++i)
+        aa[i] = translate_codon(dna + i - 1);
+    return aa;
+}
+
+inline void three_frame(const char* str, std::string* frame_one, std::string* frame_two,
+                        std::string* frame_three) {
     for (unsigned int i = 1; i < strlen(str) + 1; i += 3) {
         if (i + 2 < strlen(str) + 1) {
             *frame_one += translate_codon(str + i - 1);
