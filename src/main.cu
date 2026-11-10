@@ -32,8 +32,6 @@ using std::chrono::duration;
 using std::chrono::steady_clock;
 
 string myArray[40000][5];
-int score_top[4];
-int end = 3;
 
 void top5(int score, int index, int top_i, int top_j, int* score_top, int* top_i_max,
           int* top_j_max, int* top_indices) {
@@ -105,7 +103,7 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
 
 void traceV2_1d(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, int N, int M, int index,
                 int* indexes) {
-    int i_max = 0, j_max = 0, i = 0, j = 0, max_score = 0, curr_score, print = 0;
+    int i_max = 0, j_max = 0, i = 0, j = 0, max_score = 0, curr_score;
     string f1, f2, f3, seq_dna, seq_prot, frameshift;
 
     for (int i = 0; i < N; i++) {
@@ -129,7 +127,6 @@ void traceV2_1d(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, int 
     while (sc_mat[i * M + j] != 0) {
         indexes[3] = j;
         routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, seq_dna, seq_prot, frameshift);
-        print = i;
     }
     cout << endl;
     reverse(seq_dna.begin(), seq_dna.end());
@@ -325,22 +322,18 @@ int main() {
             int* sc_mat = (int*)malloc(size);
             int* ins_mat = (int*)malloc(size);
             int* del_mat = (int*)malloc(size);
-            int* sc_mat_hold = (int*)malloc(size);
 
             int* t_sc_mat = (int*)malloc(size);
             int* t_ins_mat = (int*)malloc(size);
             int* t_del_mat = (int*)malloc(size);
-            int* t_sc_mat_hold = (int*)malloc(size);
 
             int* sc_mat_r = (int*)malloc(size);
             int* ins_mat_r = (int*)malloc(size);
             int* del_mat_r = (int*)malloc(size);
-            int* sc_mat_hold_r = (int*)malloc(size);
 
             int* t_sc_mat_r = (int*)malloc(size);
             int* t_ins_mat_r = (int*)malloc(size);
             int* t_del_mat_r = (int*)malloc(size);
-            int* t_sc_mat_hold_r = (int*)malloc(size);
 
             char* c_DNA_sequence = new char[N_size];
             char* c_protein_sequence = new char[M_size];
@@ -458,19 +451,6 @@ int main() {
                 checkCudaErrors(cudaMalloc(&d_t_ins_mat_r, size));
                 checkCudaErrors(cudaMalloc(&d_t_del_mat_r, size));
 
-                checkCudaErrors(cudaMemset(d_sc_mat, 0, size));
-                checkCudaErrors(cudaMemset(d_ins_mat, 0, size));
-                checkCudaErrors(cudaMemset(d_del_mat, 0, size));
-                checkCudaErrors(cudaMemset(d_t_sc_mat, 0, size));
-                checkCudaErrors(cudaMemset(d_t_ins_mat, 0, size));
-                checkCudaErrors(cudaMemset(d_t_del_mat, 0, size));
-
-                checkCudaErrors(cudaMemset(d_sc_mat_r, 0, size));
-                checkCudaErrors(cudaMemset(d_ins_mat_r, 0, size));
-                checkCudaErrors(cudaMemset(d_del_mat_r, 0, size));
-                checkCudaErrors(cudaMemset(d_t_sc_mat_r, 0, size));
-                checkCudaErrors(cudaMemset(d_t_ins_mat_r, 0, size));
-                checkCudaErrors(cudaMemset(d_t_del_mat_r, 0, size));
 
                 checkCudaErrors(cudaMemcpy(d_sc_mat, sc_mat, size, cudaMemcpyHostToDevice));
                 checkCudaErrors(cudaMemcpy(d_ins_mat, ins_mat, size, cudaMemcpyHostToDevice));
@@ -639,22 +619,18 @@ int main() {
             free(sc_mat);
             free(ins_mat);
             free(del_mat);
-            free(sc_mat_hold);
 
             free(t_sc_mat);
             free(t_ins_mat);
             free(t_del_mat);
-            free(t_sc_mat_hold);
 
             free(sc_mat_r);
             free(ins_mat_r);
             free(del_mat_r);
-            free(sc_mat_hold_r);
 
             free(t_sc_mat_r);
             free(t_ins_mat_r);
             free(t_del_mat_r);
-            free(t_sc_mat_hold_r);
 
             delete[] c_protein_sequence;
             delete[] c_DNA_sequence;
@@ -678,22 +654,18 @@ int main() {
                 int* sc_mat = (int*)malloc(size);
                 int* ins_mat = (int*)malloc(size);
                 int* del_mat = (int*)malloc(size);
-                int* sc_mat_hold = (int*)malloc(size);
 
                 int* t_sc_mat = (int*)malloc(size);
                 int* t_ins_mat = (int*)malloc(size);
                 int* t_del_mat = (int*)malloc(size);
-                int* t_sc_mat_hold = (int*)malloc(size);
 
                 int* sc_mat_r = (int*)malloc(size);
                 int* ins_mat_r = (int*)malloc(size);
                 int* del_mat_r = (int*)malloc(size);
-                int* sc_mat_hold_r = (int*)malloc(size);
 
                 int* t_sc_mat_r = (int*)malloc(size);
                 int* t_ins_mat_r = (int*)malloc(size);
                 int* t_del_mat_r = (int*)malloc(size);
-                int* t_sc_mat_hold_r = (int*)malloc(size);
 
                 char* c_DNA_sequence = new char[N_size];
                 char* c_protein_sequence = new char[M_size];
@@ -817,19 +789,6 @@ int main() {
                     checkCudaErrors(cudaMalloc(&d_t_ins_mat_r, size));
                     checkCudaErrors(cudaMalloc(&d_t_del_mat_r, size));
 
-                    checkCudaErrors(cudaMemset(d_sc_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_ins_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_del_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_sc_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_ins_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_del_mat, 0, size));
-
-                    checkCudaErrors(cudaMemset(d_sc_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_ins_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_del_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_sc_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_ins_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_del_mat_r, 0, size));
 
                     checkCudaErrors(cudaMemcpy(d_sc_mat, sc_mat, size, cudaMemcpyHostToDevice));
                     checkCudaErrors(cudaMemcpy(d_ins_mat, ins_mat, size, cudaMemcpyHostToDevice));
@@ -998,22 +957,18 @@ int main() {
                 free(sc_mat);
                 free(ins_mat);
                 free(del_mat);
-                free(sc_mat_hold);
 
                 free(t_sc_mat);
                 free(t_ins_mat);
                 free(t_del_mat);
-                free(t_sc_mat_hold);
 
                 free(sc_mat_r);
                 free(ins_mat_r);
                 free(del_mat_r);
-                free(sc_mat_hold_r);
 
                 free(t_sc_mat_r);
                 free(t_ins_mat_r);
                 free(t_del_mat_r);
-                free(t_sc_mat_hold_r);
 
                 delete[] c_protein_sequence;
                 delete[] c_DNA_sequence;
@@ -1035,22 +990,18 @@ int main() {
                 int* sc_mat = (int*)malloc(size);
                 int* ins_mat = (int*)malloc(size);
                 int* del_mat = (int*)malloc(size);
-                int* sc_mat_hold = (int*)malloc(size);
 
                 int* t_sc_mat = (int*)malloc(size);
                 int* t_ins_mat = (int*)malloc(size);
                 int* t_del_mat = (int*)malloc(size);
-                int* t_sc_mat_hold = (int*)malloc(size);
 
                 int* sc_mat_r = (int*)malloc(size);
                 int* ins_mat_r = (int*)malloc(size);
                 int* del_mat_r = (int*)malloc(size);
-                int* sc_mat_hold_r = (int*)malloc(size);
 
                 int* t_sc_mat_r = (int*)malloc(size);
                 int* t_ins_mat_r = (int*)malloc(size);
                 int* t_del_mat_r = (int*)malloc(size);
-                int* t_sc_mat_hold_r = (int*)malloc(size);
 
                 char* c_DNA_sequence = new char[N_size];
                 char* c_protein_sequence = new char[M_size];
@@ -1174,19 +1125,6 @@ int main() {
                     checkCudaErrors(cudaMalloc(&d_t_ins_mat_r, size));
                     checkCudaErrors(cudaMalloc(&d_t_del_mat_r, size));
 
-                    checkCudaErrors(cudaMemset(d_sc_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_ins_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_del_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_sc_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_ins_mat, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_del_mat, 0, size));
-
-                    checkCudaErrors(cudaMemset(d_sc_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_ins_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_del_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_sc_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_ins_mat_r, 0, size));
-                    checkCudaErrors(cudaMemset(d_t_del_mat_r, 0, size));
 
                     checkCudaErrors(cudaMemcpy(d_sc_mat, sc_mat, size, cudaMemcpyHostToDevice));
                     checkCudaErrors(cudaMemcpy(d_ins_mat, ins_mat, size, cudaMemcpyHostToDevice));
@@ -1355,22 +1293,18 @@ int main() {
                 free(sc_mat);
                 free(ins_mat);
                 free(del_mat);
-                free(sc_mat_hold);
 
                 free(t_sc_mat);
                 free(t_ins_mat);
                 free(t_del_mat);
-                free(t_sc_mat_hold);
 
                 free(sc_mat_r);
                 free(ins_mat_r);
                 free(del_mat_r);
-                free(sc_mat_hold_r);
 
                 free(t_sc_mat_r);
                 free(t_ins_mat_r);
                 free(t_del_mat_r);
-                free(t_sc_mat_hold_r);
 
                 delete[] c_protein_sequence;
                 delete[] c_DNA_sequence;
