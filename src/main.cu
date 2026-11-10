@@ -101,7 +101,6 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_
     }
 }
 
-// An alignment as traceback builds it, from its end back to its start.
 struct Alignment {
     string dna, prot, frameshift;
 };
@@ -142,58 +141,6 @@ void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat
 
     if (aln)
         *aln = {seq_dna, seq_prot, frameshift};
-}
-
-void traceV2_1d(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, int N, int M, int index,
-                int* indexes) {
-    Alignment aln;
-    traceV2_1d_check(input_seq, ref_seq, sc_mat, t_sc_mat, N, M, index, indexes, &aln);
-    string f1, f2, f3;
-    size_t i;
-
-    cout << endl;
-    reverse(aln.dna.begin(), aln.dna.end());
-    reverse(aln.prot.begin(), aln.prot.end());
-    reverse(aln.frameshift.begin(), aln.frameshift.end());
-
-    three_frame(input_seq, &f1, &f2, &f3);
-
-    cout << "DNA Input:\t";
-    for (i = 0; i < strlen(input_seq); i++) {
-        cout << input_seq[i];
-    }
-    cout << endl;
-    cout << "\t\t ";
-    for (i = 0; i < f1.length(); i++) {
-        cout << f1[i] << "  ";
-    }
-    cout << endl;
-    cout << "\t\t  ";
-    for (i = 0; i < f2.length(); i++) {
-        cout << f2[i] << "  ";
-    }
-    cout << endl;
-    cout << "\t\t   ";
-    for (i = 0; i < f3.length(); i++) {
-        cout << f3[i] << "  ";
-    }
-    cout << endl << endl;
-
-    cout << "Frame Match: \t ";
-    for (i = 0; i < aln.dna.length(); i++) {
-        cout << aln.dna[i] << "  ";
-    }
-    cout << endl;
-    cout << "Frameshift: \t ";
-    for (i = 0; i < aln.frameshift.length(); i++) {
-        cout << aln.frameshift[i] << "  ";
-    }
-    cout << endl;
-    cout << "Output Prot: \t ";
-    for (i = 0; i < aln.prot.length(); i++) {
-        cout << aln.prot[i] << "  ";
-    }
-    cout << endl;
 }
 
 void write_to_excel(int n, int i) {
@@ -681,46 +628,84 @@ int main() {
             end = steady_clock::now();
             double elapsed1 = duration<double, milli>(end - start).count();
 
+            Alignment aln, aln_r;
             traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                             top_indexes[i], index);
+                             top_indexes[i], index, &aln);
 
-            if (frame == 3) {
-                traceV2_1d(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                           top_indexes[i], index);
-                cout << endl << "Score: " << top_scores[i] << endl;
-                cout << "Start to End match in Protein: " << index[3] << "-" << index[2] << endl
-                     << endl;
-                cout << "Time in ms: " << elapsed1 << endl << endl;
-            }
-
+            bool use_reverse = false;
+            double elapsed = elapsed1;
             if (frame == 6) {
                 start = steady_clock::now();
                 scoring_cpu(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, ins_mat_r, del_mat_r,
                             t_sc_mat_r, t_ins_mat_r, t_del_mat_r, N, M);
                 end = steady_clock::now();
-                double elapsed = duration<double, milli>(end - start).count();
+                double elapsed_r = duration<double, milli>(end - start).count();
 
                 traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N, M,
-                                 top_indexes[i], index_r);
-
-                if (index[0] >= index_r[0]) {
-                    traceV2_1d(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
-                               top_indexes[i], index);
-                    cout << endl << "Score: " << top_scores[i] << endl;
-                    cout << "Start to End match in Protein: " << index[3] << "-" << index[2] << endl
-                         << endl;
-                    cout << "Time in ms: " << elapsed1 << endl << endl;
-                } else {
-                    cout << "Reverse: " << endl;
-                    traceV2_1d(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N, M,
-                               top_indexes[i], index_r);
-                    cout << endl << "Score: " << top_scores[i] << endl;
-                    cout << "Start to End match in Protein: " << index_r[3] << "-" << index_r[2]
-                         << endl
-                         << endl;
-                    cout << "Time in ms: " << elapsed << endl << endl;
+                                 top_indexes[i], index_r, &aln_r);
+                if (index[0] < index_r[0]) {
+                    use_reverse = true;
+                    elapsed = elapsed_r;
                 }
             }
+
+            const char* dna = use_reverse ? c_DNA_sequence_r : c_DNA_sequence;
+            Alignment& shown = use_reverse ? aln_r : aln;
+            const int* shown_index = use_reverse ? index_r : index;
+            string f1, f2, f3;
+            size_t k;
+
+            if (use_reverse)
+                cout << "Reverse: " << endl;
+            cout << endl;
+            reverse(shown.dna.begin(), shown.dna.end());
+            reverse(shown.prot.begin(), shown.prot.end());
+            reverse(shown.frameshift.begin(), shown.frameshift.end());
+
+            three_frame(dna, &f1, &f2, &f3);
+
+            cout << "DNA Input:\t";
+            for (k = 0; k < strlen(dna); k++) {
+                cout << dna[k];
+            }
+            cout << endl;
+            cout << "\t\t ";
+            for (k = 0; k < f1.length(); k++) {
+                cout << f1[k] << "  ";
+            }
+            cout << endl;
+            cout << "\t\t  ";
+            for (k = 0; k < f2.length(); k++) {
+                cout << f2[k] << "  ";
+            }
+            cout << endl;
+            cout << "\t\t   ";
+            for (k = 0; k < f3.length(); k++) {
+                cout << f3[k] << "  ";
+            }
+            cout << endl << endl;
+
+            cout << "Frame Match: \t ";
+            for (k = 0; k < shown.dna.length(); k++) {
+                cout << shown.dna[k] << "  ";
+            }
+            cout << endl;
+            cout << "Frameshift: \t ";
+            for (k = 0; k < shown.frameshift.length(); k++) {
+                cout << shown.frameshift[k] << "  ";
+            }
+            cout << endl;
+            cout << "Output Prot: \t ";
+            for (k = 0; k < shown.prot.length(); k++) {
+                cout << shown.prot[k] << "  ";
+            }
+            cout << endl;
+
+            cout << endl << "Score: " << top_scores[i] << endl;
+            cout << "Start to End match in Protein: " << shown_index[3] << "-" << shown_index[2]
+                 << endl
+                 << endl;
+            cout << "Time in ms: " << elapsed << endl << endl;
 
             free(sc_mat);
             free(ins_mat);
