@@ -15,7 +15,7 @@ using std::ifstream;
 using std::string;
 using std::vector;
 
-vector<string> readFastaSequences(const string& filename) {
+vector<string> read_fasta_sequences(const string& filename) {
     ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
     vector<string> sequences;
     string line, sequence;
@@ -47,7 +47,7 @@ vector<string> readFastaSequences(const string& filename) {
     return sequences;
 }
 
-vector<string> readFastaIDs(const string& filename) {
+vector<string> read_fasta_ids(const string& filename) {
     ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
     vector<string> sequenceIDs;
     string line;

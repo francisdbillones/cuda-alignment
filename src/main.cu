@@ -240,8 +240,8 @@ int main() {
         cout << "Input file name for protein(exclude .fasta/.fastq):" << endl << "--> ";
         cin >> file_name;
 
-        proteinInputs = readFastaSequences(file_name);
-        proteinIdInputs = readFastaIDs(file_name);
+        proteinInputs = read_fasta_sequences(file_name);
+        proteinIdInputs = read_fasta_ids(file_name);
         if (!proteinInputs.empty() && !proteinIdInputs.empty()) {
             break;
         }
@@ -252,7 +252,7 @@ int main() {
         cout << "Input file name for DNA (exclude .fasta/.fastq):" << endl << "--> ";
         cin >> file_name;
 
-        dnaInputs = readFastaSequences(file_name);
+        dnaInputs = read_fasta_sequences(file_name);
         if (!dnaInputs.empty()) {
             break;
         }
