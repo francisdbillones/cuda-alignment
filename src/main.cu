@@ -89,7 +89,7 @@ string reverse_complement(string str) {
     }
     return str;
 }
-    
+
 void three_frame(char* str, string* frame_one, string* frame_two, string* frame_three) {
     for (unsigned int i = 1; i < strlen(str) + 1; i += 3) {
         if (i + 2 < strlen(str) + 1) {
