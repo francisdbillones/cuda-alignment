@@ -17,7 +17,10 @@ for ds in 'testProt testDNA' 'ffsub_prot ffsub_dna'; do
         printf '%s\n' "$1" "$2" "$mode" "$frame" "$top" | timeout 900 "$bin" > "$out/$tag.raw" 2>&1
         rc=$?
         grep -vE 'Time in ms|Total runtime' "$out/$tag.raw" > "$out/$tag.txt"
-        if [ "$rc" = 0 ] && cmp -s "$golden/$tag.txt" "$out/$tag.txt"; then
+        if [ "$rc" = 0 ] && [ "${UPDATE_GOLDEN:-0}" = 1 ]; then
+            cmp -s "$golden/$tag.txt" "$out/$tag.txt" && echo "SAME $tag" || echo "UPDATED $tag"
+            cp "$out/$tag.txt" "$golden/$tag.txt"
+        elif [ "$rc" = 0 ] && cmp -s "$golden/$tag.txt" "$out/$tag.txt"; then
             echo "PASS $tag"
         else
             echo "FAIL $tag (exit $rc)"
