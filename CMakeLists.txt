@@ -20,7 +20,7 @@ endif()
 set(CUDA_ALIGNMENT_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data" CACHE PATH
     "Directory containing BLOSUM62.txt and the input .fasta files")
 
-add_executable(cuda_alignment src/main.cu src/blosum62.cu)
+add_executable(cuda_alignment src/main.cu src/blosum62.cu src/fasta.cpp)
 
 set_target_properties(cuda_alignment PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
