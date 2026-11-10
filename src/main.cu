@@ -78,16 +78,6 @@ void check(T err, const char* const func, const char* const file, const int line
     }
 }
 
-void three_frame(char* str, string* frame_one, string* frame_two, string* frame_three) {
-    for (unsigned int i = 1; i < strlen(str) + 1; i += 3) {
-        if (i + 2 < strlen(str) + 1) {
-            *frame_one += translate_codon(str + i - 1);
-            *frame_two += translate_codon(str + i);
-            *frame_three += translate_codon(str + i + 1);
-        }
-    }
-}
-
 void initialize_protein_to_int_map() {
 
     vector<int> host_map(128, -1);
