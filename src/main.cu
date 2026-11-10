@@ -19,7 +19,9 @@
 #undef __CUDACC__
 #endif // __INTELLISENSE__
 
+#include "blosum62.cuh"
 #include "codon.cuh"
+#include "cuda_check.cuh"
 #include "gputimer.h"
 
 #ifndef CUDA_ALIGNMENT_DATA_DIR
@@ -48,12 +50,6 @@ constexpr int shift = 4; // shift penalty
 constexpr int infn = -999;
 string myArray[40000][5];
 
-static int blosum62mat[24][24];
-static int prot_to_idx[128];
-
-__constant__ int d_blosum62mat[24][24];
-__constant__ int d_prot_to_idx[128];
-
 __constant__ int c_gep = 2;   // extend penalty
 __constant__ int c_gop = 3;   // opening penalty
 __constant__ int c_shift = 4; // shift penalty
@@ -66,96 +62,6 @@ int end = 3;
 int sc_1 = 0, sc_2 = 0, sc_3 = 0;
 int scoring = 0;
 char prot_seq;
-
-#define checkCudaErrors(val) check((val), #val, __FILE__, __LINE__)
-template <typename T>
-void check(T err, const char* const func, const char* const file, const int line) {
-    if (err != cudaSuccess) {
-        fprintf(stderr, "CUDA error at: %s : %d\n", file, line);
-        fprintf(stderr, "%s %s\n", cudaGetErrorString(err), func);
-        ;
-        exit(1);
-    }
-}
-
-void initialize_protein_to_int_map() {
-
-    vector<int> host_map(128, -1);
-
-    host_map['A'] = 0;
-    host_map['R'] = 1;
-    host_map['N'] = 2;
-    host_map['D'] = 3;
-    host_map['C'] = 4;
-    host_map['Q'] = 5;
-    host_map['E'] = 6;
-    host_map['G'] = 7;
-    host_map['H'] = 8;
-    host_map['I'] = 9;
-    host_map['L'] = 10;
-    host_map['K'] = 11;
-    host_map['M'] = 12;
-    host_map['F'] = 13;
-    host_map['P'] = 14;
-    host_map['S'] = 15;
-    host_map['T'] = 16;
-    host_map['W'] = 17;
-    host_map['Y'] = 18;
-    host_map['V'] = 19;
-    host_map['B'] = 20;
-    host_map['Z'] = 21;
-    host_map['X'] = 22;
-    host_map['U'] = 23;
-
-    for (int i = 0; i < 128; ++i)
-        prot_to_idx[i] = host_map[i];
-
-    checkCudaErrors(cudaMemcpyToSymbol(d_prot_to_idx, host_map.data(),
-                                       sizeof(int) * host_map.size(), 0, cudaMemcpyHostToDevice));
-}
-
-int place(char a) {
-    return (a >= 0 && a < 128) ? prot_to_idx[static_cast<int>(a)] : -1;
-}
-
-__device__ int d_place(char a) {
-    return (a >= 0 && a < 128) ? d_prot_to_idx[static_cast<int>(a)] : -1;
-}
-
-int score(char a, char b) {
-    int dA, dB;
-    dA = place(a);
-    dB = place(b);
-    return blosum62mat[dA][dB];
-}
-
-__device__ int d_score(char a, char b) {
-    int dA, dB;
-    dA = d_place(a);
-    dB = d_place(b);
-    return d_blosum62mat[dA][dB];
-}
-
-void readBlosum62() {
-    ifstream file(CUDA_ALIGNMENT_DATA_DIR "/BLOSUM62.txt");
-    if (!file.is_open()) {
-        cerr << "Error opening the BLOSUM62 file!" << endl;
-        exit(1);
-    }
-    string skip;
-    getline(file, skip);
-    getline(file, skip);
-
-    char c = NULL;
-
-    for (int i = 0; i < 24; i++) {
-        file >> c;
-        for (int j = 0; j < 24; j++) {
-            file >> blosum62mat[i][j];
-        }
-    }
-    file.close();
-}
 
 vector<string> readFastaSequences(const string& filename) {
     ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
@@ -390,7 +296,7 @@ __global__ void scoring_local_v2_cuda(const char* __restrict__ input_seq,
                     u_t_sc_mat[i * M + j] = infn;
                 } else {
                     prot_seq = translate_codon(input_seq + i - 1);
-                    scoring = d_score(prot_seq, ref_seq[j - 1]);
+                    scoring = score(prot_seq, ref_seq[j - 1]);
                     insert = u_ins_mat[i * M + (j - 1)] - c_gep;
                     xscore = u_sc_mat[i * M + (j - 1)] - c_gop - c_gep;
 
