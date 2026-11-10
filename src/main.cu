@@ -359,8 +359,10 @@ int main() {
                 traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M,
                                  index_prot, index);
                 myArray[index_prot][3] = to_string(elapsed1);
-                top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
-                     top_indexes);
+                // With 6 frames, the better strand is inserted below once both are scored.
+                if (frame == 3)
+                    top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
+                         top_indexes);
                 // write_to_excel(index_dna, index_prot);
                 total_r += elapsed1;
                 cout << "Run DNA: " << index_dna << " Prot: " << index_prot << endl
@@ -386,6 +388,8 @@ int main() {
                         myArray[index_prot][0] = to_string(index[0]);
                         myArray[index_prot][1] = to_string(index[3]);
                         myArray[index_prot][2] = to_string(index[2]);
+                        top5(index[0], index_prot, index[1], index[2], top_scores, top_i, top_j,
+                             top_indexes);
                     } else {
                         myArray[index_prot][0] = to_string(index_r[0]);
                         myArray[index_prot][1] = to_string(index_r[3]);

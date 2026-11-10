@@ -714,21 +714,20 @@ Score: 55
 Start to End match in Protein: 107-141
 
 
-17sp|A0A1P8AUY4|MDN1_ARATH Midasin OS=Arabidopsis thaliana OX=3702 GN=MDN1 PE=1 SV=1
-Sequence: 17
-Reverse: 
+15sp|A0A1P8ASY1|JHS1_ARATH DNA replication ATP-dependent helicase/nuclease JHS1 OS=Arabidopsis thaliana OX=3702 GN=JHS1 PE=2 SV=1
+Sequence: 15
 
-DNA Input:	TCATTTTGCCTTACTGGGCTTTCCGAGTATTGGCATTAATATAATGTATAGACCGACCAGCAGGAAGCAGAAATATCGCCCAGAACGTTGGAGAAAATGCCAATTGACGTCGGTAGTGATCAT
-		 S  F  C  L  T  G  L  S  E  Y  W  H  X  Y  N  V  X  T  D  Q  Q  E  A  E  I  S  P  R  T  L  E  K  M  P  I  D  V  G  S  D  H  
-		  H  F  A  L  L  G  F  P  S  I  G  I  N  I  M  Y  R  P  T  S  R  K  Q  K  Y  R  P  E  R  W  R  K  C  Q  L  T  S  V  V  I     
-		   I  L  P  Y  W  A  F  R  V  L  A  L  I  X  C  I  D  R  P  A  G  S  R  N  I  A  Q  N  V  G  E  N  A  N  X  R  R  X  X  S     
+DNA Input:	ATGATCACTACCGACGTCAATTGGCATTTTCTCCAACGTTCTGGGCGATATTTCTGCTTCCTGCTGGTCGGTCTATACATTATATTAATGCCAATACTCGGAAAGCCCAGTAAGGCAAAATGA
+		 M  I  T  T  D  V  N  W  H  F  L  Q  R  S  G  R  Y  F  C  F  L  L  V  G  L  Y  I  I  L  M  P  I  L  G  K  P  S  K  A  K  X  
+		  X  S  L  P  T  S  I  G  I  F  S  N  V  L  G  D  I  S  A  S  C  W  S  V  Y  T  L  Y  X  C  Q  Y  S  E  S  P  V  R  Q  N     
+		   D  H  Y  R  R  Q  L  A  F  S  P  T  F  W  A  I  F  L  L  P  A  G  R  S  I  H  Y  I  N  A  N  T  R  K  A  Q  X  G  K  M     
 
-Frame Match: 	 L  L  G  F  S  -  E  -  -  Y  W  -  H  N  I  M  Y  R  T  D  Q  A  G  S  R  N  I  A  Q  N  V  G  E  N  C  Q  L  T  S  
-Frameshift: 	             *                          *              *        *                                      *              
-Output Prot: 	 I  A  G  F  A  L  E  I  W  Y  W  W  H  S  V  L  W  K  N  S  Q  I  G  L  M  N  I  S  -  D  T  G  -  N  C  Q  I  L  S  
+Frame Match: 	 S  L  P  T  S  I  G  I  F  P  T  F  W  A  I  F  S  A  F  L  L  V  G  S  I  H  Y  Y  L  M  P  I  L  E  S  P  -  V  R  Q  N  
+Frameshift: 	                            *                    *     *              *           *  *              *                       
+Output Prot: 	 A  L  P  V  S  I  G  -  -  P  L  L  F  A  -  -  S  T  F  V  L  V  G  D  -  H  Y  Q  L  P  P  L  V  Q  S  T  E  A  R  E  N  
 
 Score: 54
-Start to End match in Protein: 3025-3061
+Start to End match in Protein: 1061-1096
 
 
 Run DNA: 4 Prot: 0
