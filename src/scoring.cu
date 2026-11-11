@@ -46,7 +46,7 @@ void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int
         for (size_t j = 0; j < M; j++) {
             if (i == 0 || j == 0) {
                 sc_mat[i * M + j] = 0;
-                t_sc_mat[i * M + j] = 0;
+                t_sc_mat[i * M + j] = TRACE_STOP;
             }
         }
     }
@@ -91,31 +91,31 @@ void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int
                 xscore = sc_mat[0 * M + (j - 1)] + score(prot_seq, ref_seq[j - 1]);
                 if (insert >= del && insert >= xscore) {
                     sc_mat[i * M + j] = insert;
-                    t_sc_mat[i * M + j] = -2;
+                    t_sc_mat[i * M + j] = TRACE_INS;
                 } else if (del >= insert && del >= xscore) {
                     sc_mat[i * M + j] = del;
-                    t_sc_mat[i * M + j] = -1;
+                    t_sc_mat[i * M + j] = TRACE_DEL;
                 } else {
                     sc_mat[i * M + j] = xscore;
-                    t_sc_mat[i * M + j] = 1;
+                    t_sc_mat[i * M + j] = TRACE_FIRST;
                 }
             } else if (i == 2) {
                 xscore = sc_mat[0 * M + (j - 1)] + score(prot_seq, ref_seq[j - 1]) - shift;
                 if (insert > xscore) {
                     sc_mat[i * M + j] = insert;
-                    t_sc_mat[i * M + j] = -2;
+                    t_sc_mat[i * M + j] = TRACE_INS;
                 } else {
                     sc_mat[i * M + j] = xscore;
-                    t_sc_mat[i * M + j] = 2;
+                    t_sc_mat[i * M + j] = TRACE_SHIFT_2;
                 }
             } else if (i == 3) {
                 xscore = sc_mat[1 * M + (j - 1)] + score(prot_seq, ref_seq[j - 1]) - shift;
                 if (insert > xscore) {
                     sc_mat[i * M + j] = insert;
-                    t_sc_mat[i * M + j] = -2;
+                    t_sc_mat[i * M + j] = TRACE_INS;
                 } else {
                     sc_mat[i * M + j] = xscore;
-                    t_sc_mat[i * M + j] = 2;
+                    t_sc_mat[i * M + j] = TRACE_SHIFT_2;
                 }
             }
 
@@ -159,19 +159,19 @@ void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* i
 
                 if (insert >= del && insert >= sc_1 && insert >= sc_2 && insert >= sc_3) {
                     sc_mat[i * M + j] = insert;
-                    t_sc_mat[i * M + j] = -2;
+                    t_sc_mat[i * M + j] = TRACE_INS;
                 } else if (del >= insert && del >= sc_1 && del >= sc_2 && del >= sc_3) {
                     sc_mat[i * M + j] = del;
-                    t_sc_mat[i * M + j] = -1;
+                    t_sc_mat[i * M + j] = TRACE_DEL;
                 } else if (sc_2 >= insert && sc_2 >= del && sc_2 >= sc_1 && sc_2 >= sc_3) {
                     sc_mat[i * M + j] = sc_2;
-                    t_sc_mat[i * M + j] = 3;
+                    t_sc_mat[i * M + j] = TRACE_MATCH;
                 } else if (sc_1 >= insert && sc_1 >= del && sc_1 >= sc_2 && sc_1 >= sc_3) {
                     sc_mat[i * M + j] = sc_1;
-                    t_sc_mat[i * M + j] = 2;
+                    t_sc_mat[i * M + j] = TRACE_SHIFT_2;
                 } else if (sc_3 >= insert && sc_3 >= del && sc_3 >= sc_1 && sc_3 >= sc_2) {
                     sc_mat[i * M + j] = sc_3;
-                    t_sc_mat[i * M + j] = 4;
+                    t_sc_mat[i * M + j] = TRACE_SHIFT_4;
                 }
             }
 
@@ -245,19 +245,19 @@ __global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __re
                     int trace_value;
 
                     max_current_score = (insert >= del) ? insert : del;
-                    trace_value = (insert >= del) ? -2 : -1;
+                    trace_value = (insert >= del) ? TRACE_INS : TRACE_DEL;
 
                     if (sc_2 > max_current_score) {
                         max_current_score = sc_2;
-                        trace_value = 3;
+                        trace_value = TRACE_MATCH;
                     }
                     if (sc_1 > max_current_score) {
                         max_current_score = sc_1;
-                        trace_value = 2;
+                        trace_value = TRACE_SHIFT_2;
                     }
                     if (sc_3 > max_current_score) {
                         max_current_score = sc_3;
-                        trace_value = 4;
+                        trace_value = TRACE_SHIFT_4;
                     }
 
                     u_sc_mat[i * M + j] = (max_current_score < 0) ? 0 : max_current_score;

@@ -61,49 +61,13 @@ std::array<Ranked, 5> top5(const vector<Hit>& hits) {
 
 void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_seq1,
              string& final_seq2, string& frameshift) {
-    int k = 0;
-
-    if (trace == 3) {
-        i -= 3;
-        j--;
-        k = i + 3;
-        final_seq1 += translate_codon(str + k - 1);
-        final_seq2 += ref_seq[j];
-        frameshift += " ";
-    } else if (trace == -2) {
-        j--;
-        final_seq1 += "-";
-        final_seq2 += ref_seq[j];
-        frameshift += " ";
-    } else if (trace == -1) {
-        i -= 3;
-        k = i + 3;
-        final_seq1 += translate_codon(str + k - 1);
-        final_seq2 += "-";
-        frameshift += " ";
-    } else if (trace == 4) {
-        i -= 4;
-        j--;
-        k = i + 4;
-        final_seq1 += translate_codon(str + k - 1);
-        final_seq2 += ref_seq[j];
-        frameshift += "*";
-
-    } else if (trace == 2) {
-        i -= 2;
-        j--;
-        k = i + 2;
-        final_seq1 += translate_codon(str + k - 1);
-        final_seq2 += ref_seq[j];
-        frameshift += "*";
-    } else if (trace == 1) {
-        i--;
-        j--;
-        k = i + 1;
-        final_seq1 += translate_codon(str + k - 1);
-        final_seq2 += ref_seq[j];
-        frameshift += " ";
-    }
+    const int di = trace == TRACE_DEL ? 3 : trace == TRACE_INS ? 0 : trace;
+    const int dj = trace != TRACE_DEL;
+    final_seq1 += di ? translate_codon(str + i - 1) : '-';
+    final_seq2 += dj ? ref_seq[j - 1] : '-';
+    frameshift += trace == TRACE_SHIFT_2 || trace == TRACE_SHIFT_4 ? '*' : ' ';
+    i -= di;
+    j -= dj;
 }
 
 struct Alignment {

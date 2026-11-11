@@ -2,9 +2,19 @@
 #define SCORING_CUH
 
 #include <cstddef>
+#include <cstdint>
 
 #include <cuda_runtime.h>
 
+enum Trace : std::int8_t {
+    TRACE_INS = -2,
+    TRACE_DEL = -1,
+    TRACE_STOP = 0,
+    TRACE_FIRST = 1,
+    TRACE_SHIFT_2 = 2,
+    TRACE_MATCH = 3,
+    TRACE_SHIFT_4 = 4,
+};
 
 void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int* del_mat,
                   int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);
