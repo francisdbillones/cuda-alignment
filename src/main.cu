@@ -1,9 +1,7 @@
 ﻿#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -14,21 +12,16 @@
 #include <memory>
 
 #include "blosum62.h"
+#include "cli.h"
 #include "codon.cuh"
 #include "cuda_check.cuh"
 #include "fasta.h"
 #include "gputimer.h"
 #include "scoring.cuh"
 
-using std::cerr;
-using std::cin;
-using std::copy;
-using std::cout;
-using std::endl;
 using std::milli;
 using std::min;
 using std::string;
-using std::to_string;
 using std::vector;
 using std::chrono::duration;
 using std::chrono::steady_clock;
@@ -58,10 +51,6 @@ std::array<Ranked, 5> top5(const vector<Hit>& hits) {
     }
     return top;
 }
-
-struct Alignment {
-    string dna, prot, frameshift;
-};
 
 void routine(int trace, int& i, int& j, char* str, char* ref_seq, Alignment& aln) {
     const int di = trace == TRACE_DEL ? 3 : trace == TRACE_INS ? 0 : trace;
@@ -164,6 +153,23 @@ struct DeviceMats {
     DeviceMats& operator=(const DeviceMats&) = delete;
 };
 
+double run_cpu(string& dna, string& prot, HostMats& m) {
+    const size_t N = dna.length(), M = prot.length() + 1;
+    m.init(&dna[0], &prot[0], N, M);
+    const auto start = steady_clock::now();
+    scoring_cpu(dna.data(), prot.data(), m.sc.get(), m.ins.get(), m.del.get(), m.t_sc.get(),
+                m.t_ins.get(), m.t_del.get(), N, M);
+    return duration<double, milli>(steady_clock::now() - start).count();
+}
+
+double trace_cpu(string& dna, string& prot, int* index, Alignment& aln) {
+    const size_t N = dna.length(), M = prot.length() + 1;
+    HostMats m(N * M);
+    const double ms = run_cpu(dna, prot, m);
+    traceV2_1d_check(&dna[0], &prot[0], m.sc.get(), m.t_sc.get(), N, M, index, &aln);
+    return ms;
+}
+
 vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t num_prots,
                           int frame, double& elapsed_ms) {
     string fwd = dna, rev = reverse_complement(dna);
@@ -176,11 +182,7 @@ vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t
 
         auto score_strand = [&](string& strand) {
             HostMats m(N * M);
-            m.init(&strand[0], &prot[0], N, M);
-            const auto start = steady_clock::now();
-            scoring_cpu(strand.data(), prot.data(), m.sc.get(), m.ins.get(), m.del.get(),
-                        m.t_sc.get(), m.t_ins.get(), m.t_del.get(), N, M);
-            elapsed_ms += duration<double, milli>(steady_clock::now() - start).count();
+            elapsed_ms += run_cpu(strand, prot, m);
             return best_cell(m.sc.get(), N, M);
         };
 
@@ -275,10 +277,7 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
 }
 
 int main() {
-    int mode, frame, top, device;
-    vector<string> dnaInputs, proteinInputs, proteinIdInputs;
-    string protein_sequence, DNA_sequence, DNA_sequence_r, file_name;
-
+    int device;
     checkCudaErrors(cudaGetDevice(&device));
     checkCudaErrors(cudaSetDevice(device));
 
@@ -286,62 +285,9 @@ int main() {
     initialize_protein_to_int_map();
     upload_blosum62_tables();
 
-    do {
-        file_name.clear();
-        cout << "Input file name for protein(exclude .fasta/.fastq):" << endl << "--> ";
-        cin >> file_name;
-
-        proteinInputs = read_fasta_sequences(file_name);
-        proteinIdInputs = read_fasta_ids(file_name);
-        if (!proteinInputs.empty() && !proteinIdInputs.empty()) {
-            break;
-        }
-    } while (true);
-
-    do {
-        file_name.clear();
-        cout << "Input file name for DNA (exclude .fasta/.fastq):" << endl << "--> ";
-        cin >> file_name;
-
-        dnaInputs = read_fasta_sequences(file_name);
-        if (!dnaInputs.empty()) {
-            break;
-        }
-    } while (true);
-
-    do {
-        cout << "Choose mode [0 - Sequential] [1 - CUDA]:" << endl << "--> ";
-        cin >> mode;
-
-        if (mode == 0 || mode == 1)
-            break;
-
-        cout << "Invalid input please try again." << endl;
-    } while (true);
-
-    do {
-        cout << "Choose frame count [3 - 3 Frame] [6 - 6 Frame]:" << endl << "--> ";
-        cin >> frame;
-
-        if (frame == 3 || frame == 6)
-            break;
-
-        cout << "Invalid input please try again." << endl;
-    } while (true);
-
-    do {
-        cout << "Show Score [0 - Top 1] [1 - Top 5]:" << endl << "--> ";
-        cin >> top;
-
-        if (top == 0 || top == 1)
-            break;
-
-        cout << "Invalid input please try again." << endl;
-
-    } while (true);
-
+    const Options opt = prompt_options();
     double total_r = 0.0;
-    const size_t num_prots = min<size_t>(proteinInputs.size(), 4096);
+    const size_t num_prots = min<size_t>(opt.prots.size(), 4096);
 
     // HITS_DUMP=path dumps
     // "read protein score i j reverse"
@@ -351,12 +297,12 @@ int main() {
     if (const char* path = std::getenv("HITS_DUMP"))
         hits_dump.open(path);
 
-    for (int index_dna = 0; index_dna < dnaInputs.size(); index_dna++) {
+    for (int index_dna = 0; index_dna < opt.dnas.size(); index_dna++) {
         const vector<Hit> hits =
-            mode == 0
-                ? score_all_cpu(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r)
-                : score_all_cuda(dnaInputs[index_dna], proteinInputs, num_prots, frame, total_r);
-        cout << "Total runtime: " << total_r << endl;
+            opt.mode == 0
+                ? score_all_cpu(opt.dnas[index_dna], opt.prots, num_prots, opt.frame, total_r)
+                : score_all_cuda(opt.dnas[index_dna], opt.prots, num_prots, opt.frame, total_r);
+        print_runtime(total_r);
 
         if (hits_dump.is_open())
             for (size_t p = 0; p < hits.size(); p++)
@@ -365,123 +311,30 @@ int main() {
 
         const std::array<Ranked, 5> best = top5(hits);
         int index[4] = {}, index_r[4] = {};
-        steady_clock::time_point start, end;
+        string fwd = opt.dnas[index_dna], rev = reverse_complement(fwd);
 
         for (int i = 0; i < 5; i++) {
-            if (top == 0 && best[i].score != best[0].score)
+            if (opt.top == 0 && best[i].score != best[0].score)
                 continue;
 
-            DNA_sequence = dnaInputs[index_dna];
-            protein_sequence = proteinInputs[best[i].prot];
-            DNA_sequence_r = reverse_complement(DNA_sequence);
-
-            size_t N = DNA_sequence.length();
-            size_t M = protein_sequence.length() + 1;
-
-            size_t N_size = (N) * sizeof(char);
-            size_t M_size = (M) * sizeof(char);
-            HostMats m(N * M), m_r(frame == 6 ? N * M : 0);
-
-            char* c_DNA_sequence = new char[N_size + 1];
-            char* c_protein_sequence = new char[M_size];
-            char* c_DNA_sequence_r = new char[N_size + 1];
-
-            memcpy(c_DNA_sequence, DNA_sequence.c_str(), N_size + 1);
-            memcpy(c_protein_sequence, protein_sequence.c_str(), M_size);
-            memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size + 1);
-
-            m.init(c_DNA_sequence, c_protein_sequence, N, M);
-            if (frame == 6)
-                m_r.init(c_DNA_sequence_r, c_protein_sequence, N, M);
+            string prot = opt.prots[best[i].prot];
 
             // use cpu here, the cuda code is so long and we only have to iterate another 5 times
             // its honestly worth it saving LOC and keeping code simple to run a couple ms slower
-            cout << proteinIdInputs[best[i].prot] << endl << "Sequence: " << best[i].prot << endl;
-            start = steady_clock::now();
-            scoring_cpu(c_DNA_sequence, c_protein_sequence, m.sc.get(), m.ins.get(), m.del.get(),
-                        m.t_sc.get(), m.t_ins.get(), m.t_del.get(), N, M);
-            end = steady_clock::now();
-            double elapsed1 = duration<double, milli>(end - start).count();
-
             Alignment aln, aln_r;
-            traceV2_1d_check(c_DNA_sequence, c_protein_sequence, m.sc.get(), m.t_sc.get(), N, M,
-                             index, &aln);
-
+            double elapsed = trace_cpu(fwd, prot, index, aln);
             bool use_reverse = false;
-            double elapsed = elapsed1;
-            if (frame == 6) {
-                start = steady_clock::now();
-                scoring_cpu(c_DNA_sequence_r, c_protein_sequence, m_r.sc.get(), m_r.ins.get(),
-                            m_r.del.get(), m_r.t_sc.get(), m_r.t_ins.get(), m_r.t_del.get(), N, M);
-                end = steady_clock::now();
-                double elapsed_r = duration<double, milli>(end - start).count();
-
-                traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, m_r.sc.get(),
-                                 m_r.t_sc.get(), N, M, index_r, &aln_r);
+            if (opt.frame == 6) {
+                const double elapsed_r = trace_cpu(rev, prot, index_r, aln_r);
                 if (index[0] < index_r[0]) {
                     use_reverse = true;
                     elapsed = elapsed_r;
                 }
             }
 
-            const char* dna = use_reverse ? c_DNA_sequence_r : c_DNA_sequence;
-            Alignment& shown = use_reverse ? aln_r : aln;
-            const int* shown_index = use_reverse ? index_r : index;
-            string f1, f2, f3;
-            size_t k;
-
-            if (use_reverse)
-                cout << "Reverse: " << endl;
-            cout << endl;
-
-            three_frame(dna, &f1, &f2, &f3);
-
-            cout << "DNA Input:\t";
-            for (k = 0; k < strlen(dna); k++) {
-                cout << dna[k];
-            }
-            cout << endl;
-            cout << "\t\t ";
-            for (k = 0; k < f1.length(); k++) {
-                cout << f1[k] << "  ";
-            }
-            cout << endl;
-            cout << "\t\t  ";
-            for (k = 0; k < f2.length(); k++) {
-                cout << f2[k] << "  ";
-            }
-            cout << endl;
-            cout << "\t\t   ";
-            for (k = 0; k < f3.length(); k++) {
-                cout << f3[k] << "  ";
-            }
-            cout << endl << endl;
-
-            cout << "Frame Match: \t ";
-            for (k = 0; k < shown.dna.length(); k++) {
-                cout << shown.dna[k] << "  ";
-            }
-            cout << endl;
-            cout << "Frameshift: \t ";
-            for (k = 0; k < shown.frameshift.length(); k++) {
-                cout << shown.frameshift[k] << "  ";
-            }
-            cout << endl;
-            cout << "Output Prot: \t ";
-            for (k = 0; k < shown.prot.length(); k++) {
-                cout << shown.prot[k] << "  ";
-            }
-            cout << endl;
-
-            cout << endl << "Score: " << best[i].score << endl;
-            cout << "Start to End match in Protein: " << shown_index[3] << "-" << shown_index[2]
-                 << endl
-                 << endl;
-            cout << "Time in ms: " << elapsed << endl << endl;
-
-            delete[] c_protein_sequence;
-            delete[] c_DNA_sequence;
-            delete[] c_DNA_sequence_r;
+            print_hit(opt.prot_ids[best[i].prot], best[i].prot, use_reverse ? rev : fwd,
+                      use_reverse, use_reverse ? aln_r : aln, best[i].score,
+                      use_reverse ? index_r : index, elapsed);
         }
     }
 
