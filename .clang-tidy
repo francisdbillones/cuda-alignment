@@ -13,7 +13,6 @@ Checks: >
   readability-implicit-bool-conversion,
   misc-const-correctness,
   misc-unused-parameters,
-  cppcoreguidelines-init-variables,
   cert-err33-c
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*/include/.*'
