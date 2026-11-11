@@ -63,43 +63,6 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, Alignment& aln
     j -= dj;
 }
 
-void traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M,
-                      int* indexes, Alignment* aln = nullptr) {
-    const int* sc_mat = m.sc.get();
-    const int* t_sc_mat = m.t_sc.get();
-    int i_max = 0, j_max = 0, max_score = 0, curr_score, i = 0, j = 0;
-    Alignment out;
-
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            curr_score = sc_mat[i * M + j];
-            if (curr_score > max_score) {
-                max_score = curr_score;
-                i_max = i;
-                j_max = j;
-            }
-        }
-    }
-
-    indexes[0] = max_score;
-    indexes[1] = i_max;
-    indexes[2] = j_max;
-
-    i = i_max;
-    j = j_max;
-
-    while (sc_mat[i * M + j] != 0) {
-        indexes[3] = j;
-        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, out);
-    }
-
-    reverse(out.dna.begin(), out.dna.end());
-    reverse(out.prot.begin(), out.prot.end());
-    reverse(out.frameshift.begin(), out.frameshift.end());
-    if (aln)
-        *aln = out;
-}
-
 Hit best_cell(const int* sc_mat, size_t N, size_t M) {
     Hit h;
     for (size_t i = 0; i < N; i++) {
@@ -112,6 +75,30 @@ Hit best_cell(const int* sc_mat, size_t N, size_t M) {
         }
     }
     return h;
+}
+
+void traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M,
+                      int* indexes, Alignment* aln = nullptr) {
+    const int* sc_mat = m.sc.get();
+    const int* t_sc_mat = m.t_sc.get();
+    const Hit best = best_cell(sc_mat, N, M);
+    int i = best.i, j = best.j;
+    Alignment out;
+
+    indexes[0] = best.score;
+    indexes[1] = i;
+    indexes[2] = j;
+
+    while (sc_mat[i * M + j] != 0) {
+        indexes[3] = j;
+        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, out);
+    }
+
+    reverse(out.dna.begin(), out.dna.end());
+    reverse(out.prot.begin(), out.prot.end());
+    reverse(out.frameshift.begin(), out.frameshift.end());
+    if (aln)
+        *aln = out;
 }
 
 Hit better_strand(Hit fwd, Hit rev) {
