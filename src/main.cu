@@ -380,23 +380,7 @@ int main() {
 
             size_t N_size = (N) * sizeof(char);
             size_t M_size = (M) * sizeof(char);
-            size_t size = (N) * (M) * sizeof(int);
-
-            int* sc_mat = (int*)malloc(size);
-            int* ins_mat = (int*)malloc(size);
-            int* del_mat = (int*)malloc(size);
-
-            int* t_sc_mat = (int*)malloc(size);
-            int* t_ins_mat = (int*)malloc(size);
-            int* t_del_mat = (int*)malloc(size);
-
-            int* sc_mat_r = (int*)malloc(size);
-            int* ins_mat_r = (int*)malloc(size);
-            int* del_mat_r = (int*)malloc(size);
-
-            int* t_sc_mat_r = (int*)malloc(size);
-            int* t_ins_mat_r = (int*)malloc(size);
-            int* t_del_mat_r = (int*)malloc(size);
+            HostMats m(N * M), m_r(frame == 6 ? N * M : 0);
 
             char* c_DNA_sequence = new char[N_size + 1];
             char* c_protein_sequence = new char[M_size];
@@ -406,36 +390,34 @@ int main() {
             memcpy(c_protein_sequence, protein_sequence.c_str(), M_size);
             memcpy(c_DNA_sequence_r, DNA_sequence_r.c_str(), N_size + 1);
 
-            scoring_init(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
-                         t_ins_mat, t_del_mat, N, M);
+            m.init(c_DNA_sequence, c_protein_sequence, N, M);
             if (frame == 6)
-                scoring_init(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, ins_mat_r, del_mat_r,
-                             t_sc_mat_r, t_ins_mat_r, t_del_mat_r, N, M);
+                m_r.init(c_DNA_sequence_r, c_protein_sequence, N, M);
 
             // use cpu here, the cuda code is so long and we only have to iterate another 5 times
             // its honestly worth it saving LOC and keeping code simple to run a couple ms slower
             cout << proteinIdInputs[best[i].prot] << endl << "Sequence: " << best[i].prot << endl;
             start = steady_clock::now();
-            scoring_cpu(c_DNA_sequence, c_protein_sequence, sc_mat, ins_mat, del_mat, t_sc_mat,
-                        t_ins_mat, t_del_mat, N, M);
+            scoring_cpu(c_DNA_sequence, c_protein_sequence, m.sc.get(), m.ins.get(), m.del.get(),
+                        m.t_sc.get(), m.t_ins.get(), m.t_del.get(), N, M);
             end = steady_clock::now();
             double elapsed1 = duration<double, milli>(end - start).count();
 
             Alignment aln, aln_r;
-            traceV2_1d_check(c_DNA_sequence, c_protein_sequence, sc_mat, t_sc_mat, N, M, index,
-                             &aln);
+            traceV2_1d_check(c_DNA_sequence, c_protein_sequence, m.sc.get(), m.t_sc.get(), N, M,
+                             index, &aln);
 
             bool use_reverse = false;
             double elapsed = elapsed1;
             if (frame == 6) {
                 start = steady_clock::now();
-                scoring_cpu(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, ins_mat_r, del_mat_r,
-                            t_sc_mat_r, t_ins_mat_r, t_del_mat_r, N, M);
+                scoring_cpu(c_DNA_sequence_r, c_protein_sequence, m_r.sc.get(), m_r.ins.get(),
+                            m_r.del.get(), m_r.t_sc.get(), m_r.t_ins.get(), m_r.t_del.get(), N, M);
                 end = steady_clock::now();
                 double elapsed_r = duration<double, milli>(end - start).count();
 
-                traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, sc_mat_r, t_sc_mat_r, N, M,
-                                 index_r, &aln_r);
+                traceV2_1d_check(c_DNA_sequence_r, c_protein_sequence, m_r.sc.get(),
+                                 m_r.t_sc.get(), N, M, index_r, &aln_r);
                 if (index[0] < index_r[0]) {
                     use_reverse = true;
                     elapsed = elapsed_r;
@@ -496,22 +478,6 @@ int main() {
                  << endl
                  << endl;
             cout << "Time in ms: " << elapsed << endl << endl;
-
-            free(sc_mat);
-            free(ins_mat);
-            free(del_mat);
-
-            free(t_sc_mat);
-            free(t_ins_mat);
-            free(t_del_mat);
-
-            free(sc_mat_r);
-            free(ins_mat_r);
-            free(del_mat_r);
-
-            free(t_sc_mat_r);
-            free(t_ins_mat_r);
-            free(t_del_mat_r);
 
             delete[] c_protein_sequence;
             delete[] c_DNA_sequence;
