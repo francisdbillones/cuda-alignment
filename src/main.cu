@@ -17,6 +17,7 @@
 #include "cuda_check.cuh"
 #include "fasta.h"
 #include "gputimer.h"
+#include "mats.cuh"
 #include "scoring.cuh"
 
 using std::milli;
@@ -62,10 +63,10 @@ void routine(int trace, int& i, int& j, char* str, char* ref_seq, Alignment& aln
     j -= dj;
 }
 
-void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, size_t N,
-                      size_t M, int* indexes, Alignment* aln = nullptr) {
-    N = (int)N;
-    M = (int)M;
+void traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M,
+                      int* indexes, Alignment* aln = nullptr) {
+    const int* sc_mat = m.sc.get();
+    const int* t_sc_mat = m.t_sc.get();
     int i_max = 0, j_max = 0, max_score = 0, curr_score, i = 0, j = 0;
     Alignment out;
 
@@ -120,39 +121,6 @@ Hit better_strand(Hit fwd, Hit rev) {
     return rev;
 }
 
-struct HostMats {
-    std::unique_ptr<int[]> sc, ins, del, t_sc, t_ins, t_del;
-
-    explicit HostMats(size_t n)
-        : sc(new int[n]), ins(new int[n]), del(new int[n]), t_sc(new int[n]), t_ins(new int[n]),
-          t_del(new int[n]) {}
-
-    void init(char* dna, char* prot, size_t N, size_t M) {
-        scoring_init(dna, prot, sc.get(), ins.get(), del.get(), t_sc.get(), t_ins.get(),
-                     t_del.get(), N, M);
-    }
-};
-
-struct DeviceMats {
-    int *sc, *ins, *del, *t_sc, *t_ins, *t_del;
-
-    DeviceMats(const HostMats& h, size_t n) {
-        int** dst[] = {&sc, &ins, &del, &t_sc, &t_ins, &t_del};
-        const int* src[] = {h.sc.get(),   h.ins.get(),   h.del.get(),
-                            h.t_sc.get(), h.t_ins.get(), h.t_del.get()};
-        for (int k = 0; k < 6; k++) {
-            checkCudaErrors(cudaMalloc(dst[k], n * sizeof(int)));
-            checkCudaErrors(cudaMemcpy(*dst[k], src[k], n * sizeof(int), cudaMemcpyHostToDevice));
-        }
-    }
-    ~DeviceMats() {
-        for (int* d : {sc, ins, del, t_sc, t_ins, t_del})
-            checkCudaErrors(cudaFree(d));
-    }
-    DeviceMats(const DeviceMats&) = delete;
-    DeviceMats& operator=(const DeviceMats&) = delete;
-};
-
 double run_cpu(string& dna, string& prot, HostMats& m) {
     const size_t N = dna.length(), M = prot.length() + 1;
     m.init(&dna[0], &prot[0], N, M);
@@ -166,7 +134,7 @@ double trace_cpu(string& dna, string& prot, int* index, Alignment& aln) {
     const size_t N = dna.length(), M = prot.length() + 1;
     HostMats m(N * M);
     const double ms = run_cpu(dna, prot, m);
-    traceV2_1d_check(&dna[0], &prot[0], m.sc.get(), m.t_sc.get(), N, M, index, &aln);
+    traceV2_1d_check(&dna[0], &prot[0], m, N, M, index, &aln);
     return ms;
 }
 
