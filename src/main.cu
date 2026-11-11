@@ -59,27 +59,26 @@ std::array<Ranked, 5> top5(const vector<Hit>& hits) {
     return top;
 }
 
-void routine(int trace, int& i, int& j, char* str, char* ref_seq, string& final_seq1,
-             string& final_seq2, string& frameshift) {
-    const int di = trace == TRACE_DEL ? 3 : trace == TRACE_INS ? 0 : trace;
-    const int dj = trace != TRACE_DEL;
-    final_seq1 += di ? translate_codon(str + i - 1) : '-';
-    final_seq2 += dj ? ref_seq[j - 1] : '-';
-    frameshift += trace == TRACE_SHIFT_2 || trace == TRACE_SHIFT_4 ? '*' : ' ';
-    i -= di;
-    j -= dj;
-}
-
 struct Alignment {
     string dna, prot, frameshift;
 };
+
+void routine(int trace, int& i, int& j, char* str, char* ref_seq, Alignment& aln) {
+    const int di = trace == TRACE_DEL ? 3 : trace == TRACE_INS ? 0 : trace;
+    const int dj = trace != TRACE_DEL;
+    aln.dna += di ? translate_codon(str + i - 1) : '-';
+    aln.prot += dj ? ref_seq[j - 1] : '-';
+    aln.frameshift += trace == TRACE_SHIFT_2 || trace == TRACE_SHIFT_4 ? '*' : ' ';
+    i -= di;
+    j -= dj;
+}
 
 void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat, size_t N,
                       size_t M, int* indexes, Alignment* aln = nullptr) {
     N = (int)N;
     M = (int)M;
     int i_max = 0, j_max = 0, max_score = 0, curr_score, i = 0, j = 0;
-    string seq_dna, seq_prot, frameshift;
+    Alignment out;
 
     for (i = 0; i < N; i++) {
         for (j = 0; j < M; j++) {
@@ -101,11 +100,14 @@ void traceV2_1d_check(char* input_seq, char* ref_seq, int* sc_mat, int* t_sc_mat
 
     while (sc_mat[i * M + j] != 0) {
         indexes[3] = j;
-        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, seq_dna, seq_prot, frameshift);
+        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, out);
     }
 
+    reverse(out.dna.begin(), out.dna.end());
+    reverse(out.prot.begin(), out.prot.end());
+    reverse(out.frameshift.begin(), out.frameshift.end());
     if (aln)
-        *aln = {seq_dna, seq_prot, frameshift};
+        *aln = out;
 }
 
 Hit best_cell(const int* sc_mat, size_t N, size_t M) {
@@ -449,9 +451,6 @@ int main() {
             if (use_reverse)
                 cout << "Reverse: " << endl;
             cout << endl;
-            reverse(shown.dna.begin(), shown.dna.end());
-            reverse(shown.prot.begin(), shown.prot.end());
-            reverse(shown.frameshift.begin(), shown.frameshift.end());
 
             three_frame(dna, &f1, &f2, &f3);
 
