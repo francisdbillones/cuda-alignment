@@ -57,7 +57,7 @@ static void print_spaced(const char* label, const string& s) {
 }
 
 void print_hit(const string& id, int prot, const string& dna, bool reverse, const Alignment& aln,
-               int score, const int* index, double ms) {
+               int score, int start_j, int end_j, double ms) {
     cout << id << endl << "Sequence: " << prot << endl;
     if (reverse)
         cout << "Reverse: " << endl;
@@ -75,6 +75,6 @@ void print_hit(const string& id, int prot, const string& dna, bool reverse, cons
     print_spaced("Output Prot: \t ", aln.prot);
 
     cout << endl << "Score: " << score << endl;
-    cout << "Start to End match in Protein: " << index[3] << "-" << index[2] << endl << endl;
+    cout << "Start to End match in Protein: " << start_j << "-" << end_j << endl << endl;
     cout << "Time in ms: " << ms << endl << endl;
 }

@@ -77,28 +77,28 @@ Hit best_cell(const int* sc_mat, size_t N, size_t M) {
     return h;
 }
 
-void traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M,
-                      int* indexes, Alignment* aln = nullptr) {
+struct Traceback {
+    int start_j = 0, end_j = 0;
+    Alignment aln;
+};
+
+Traceback traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M) {
     const int* sc_mat = m.sc.get();
     const int* t_sc_mat = m.t_sc.get();
     const Hit best = best_cell(sc_mat, N, M);
     int i = best.i, j = best.j;
-    Alignment out;
-
-    indexes[0] = best.score;
-    indexes[1] = i;
-    indexes[2] = j;
+    Traceback t;
+    t.end_j = j;
 
     while (sc_mat[i * M + j] != 0) {
-        indexes[3] = j;
-        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, out);
+        t.start_j = j;
+        routine(t_sc_mat[i * M + j], i, j, input_seq, ref_seq, t.aln);
     }
 
-    reverse(out.dna.begin(), out.dna.end());
-    reverse(out.prot.begin(), out.prot.end());
-    reverse(out.frameshift.begin(), out.frameshift.end());
-    if (aln)
-        *aln = out;
+    reverse(t.aln.dna.begin(), t.aln.dna.end());
+    reverse(t.aln.prot.begin(), t.aln.prot.end());
+    reverse(t.aln.frameshift.begin(), t.aln.frameshift.end());
+    return t;
 }
 
 Hit better_strand(Hit fwd, Hit rev) {
@@ -117,12 +117,11 @@ double run_cpu(string& dna, string& prot, HostMats& m) {
     return duration<double, milli>(steady_clock::now() - start).count();
 }
 
-double trace_cpu(string& dna, string& prot, int* index, Alignment& aln) {
+Traceback trace_cpu(string& dna, string& prot, double& ms) {
     const size_t N = dna.length(), M = prot.length() + 1;
     HostMats m(N * M);
-    const double ms = run_cpu(dna, prot, m);
-    traceV2_1d_check(&dna[0], &prot[0], m, N, M, index, &aln);
-    return ms;
+    ms = run_cpu(dna, prot, m);
+    return traceV2_1d_check(&dna[0], &prot[0], m, N, M);
 }
 
 vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t num_prots,
@@ -265,7 +264,6 @@ int main() {
                           << ' ' << hits[p].j << ' ' << hits[p].reverse << '\n';
 
         const std::array<Ranked, 5> best = top5(hits);
-        int index[4] = {}, index_r[4] = {};
         string fwd = opt.dnas[index_dna], rev = reverse_complement(fwd);
 
         for (int i = 0; i < 5; i++) {
@@ -273,23 +271,15 @@ int main() {
                 continue;
 
             string prot = opt.prots[best[i].prot];
+            const bool use_reverse = hits[best[i].prot].reverse;
+            string& dna = use_reverse ? rev : fwd;
 
             // use cpu here, the cuda code is so long and we only have to iterate another 5 times
             // its honestly worth it saving LOC and keeping code simple to run a couple ms slower
-            Alignment aln, aln_r;
-            double elapsed = trace_cpu(fwd, prot, index, aln);
-            bool use_reverse = false;
-            if (opt.frame == 6) {
-                const double elapsed_r = trace_cpu(rev, prot, index_r, aln_r);
-                if (index[0] < index_r[0]) {
-                    use_reverse = true;
-                    elapsed = elapsed_r;
-                }
-            }
-
-            print_hit(opt.prot_ids[best[i].prot], best[i].prot, use_reverse ? rev : fwd,
-                      use_reverse, use_reverse ? aln_r : aln, best[i].score,
-                      use_reverse ? index_r : index, elapsed);
+            double elapsed;
+            const Traceback t = trace_cpu(dna, prot, elapsed);
+            print_hit(opt.prot_ids[best[i].prot], best[i].prot, dna, use_reverse, t.aln,
+                      best[i].score, t.start_j, t.end_j, elapsed);
         }
     }
 
