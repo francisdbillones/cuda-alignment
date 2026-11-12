@@ -50,7 +50,7 @@ void print_runtime(double ms) {
 
 static void print_spaced(const char* label, const string& s) {
     cout << label;
-    for (char c : s)
+    for (const char c : s)
         cout << c << "  ";
     cout << endl;
 }

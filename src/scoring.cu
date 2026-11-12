@@ -30,8 +30,8 @@ void upload_blosum62_tables() {
                                        cudaMemcpyHostToDevice));
 }
 
-void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int* del_mat,
-                  int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M) {
+void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
+                  int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M) {
     int insert = 0;
     int del = 0;
     int xscore = 0;
@@ -194,15 +194,15 @@ __global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __re
                              int* __restrict__ u_t_ins_mat, int* __restrict__ u_t_del_mat,
                              unsigned int N, unsigned int M, unsigned int currDiag,
                              unsigned int submatrixSide, unsigned int currDiagFirstSubY) {
-    cg::thread_block block = cg::this_thread_block();
+    const cg::thread_block block = cg::this_thread_block();
 
-    unsigned int diagBlockIdx = blockIdx.x;
+    const unsigned int diagBlockIdx = blockIdx.x;
 
-    unsigned int submatrixStartY = currDiagFirstSubY + diagBlockIdx;
-    unsigned int submatrixStartX = currDiag - submatrixStartY;
+    const unsigned int submatrixStartY = currDiagFirstSubY + diagBlockIdx;
+    const unsigned int submatrixStartX = currDiag - submatrixStartY;
 
-    int i = submatrixStartY * blockDim.y + threadIdx.y;
-    int j = submatrixStartX * blockDim.x + threadIdx.x;
+    const int i = static_cast<int>(submatrixStartY * blockDim.y + threadIdx.y);
+    const int j = static_cast<int>(submatrixStartX * blockDim.x + threadIdx.x);
 
     int insert = 0;
     int del = 0;

@@ -16,8 +16,8 @@ enum Trace : std::int8_t {
     TRACE_SHIFT_4 = 4,
 };
 
-void scoring_init(char* input_seq, char* ref_seq, int* sc_mat, int* ins_mat, int* del_mat,
-                  int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);
+void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
+                  int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);
 
 void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
                  int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);

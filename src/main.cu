@@ -49,11 +49,11 @@ std::array<Ranked, 5> top5(const vector<Hit>& hits) {
     return top;
 }
 
-void routine(int trace, int& i, int& j, char* str, char* ref_seq, Alignment& aln) {
+void routine(int trace, int& i, int& j, const char* str, const char* ref_seq, Alignment& aln) {
     const int di = trace == TRACE_DEL ? 3 : trace == TRACE_INS ? 0 : trace;
-    const int dj = trace != TRACE_DEL;
-    aln.dna += di ? translate_codon(str + i - 1) : '-';
-    aln.prot += dj ? ref_seq[j - 1] : '-';
+    const int dj = trace == TRACE_DEL ? 0 : 1;
+    aln.dna += di != 0 ? translate_codon(str + i - 1) : '-';
+    aln.prot += dj != 0 ? ref_seq[j - 1] : '-';
     aln.frameshift += trace == TRACE_SHIFT_2 || trace == TRACE_SHIFT_4 ? '*' : ' ';
     i -= di;
     j -= dj;
@@ -78,7 +78,8 @@ struct Traceback {
     Alignment aln;
 };
 
-Traceback traceV2_1d_check(char* input_seq, char* ref_seq, const HostMats& m, size_t N, size_t M) {
+Traceback traceV2_1d_check(const char* input_seq, const char* ref_seq, const HostMats& m, size_t N,
+                           size_t M) {
     const int* sc_mat = m.sc.get();
     const int* t_sc_mat = m.t_sc.get();
     const Hit best = best_cell(sc_mat, N, M);
@@ -131,7 +132,7 @@ vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t
         string prot = prots[p];
         const size_t M = prot.length() + 1;
 
-        auto score_strand = [&](string& strand) {
+        const auto score_strand = [&](string& strand) {
             HostMats m(N * M);
             elapsed_ms += run_cpu(strand, prot, m);
             return best_cell(m.sc.get(), N, M);
@@ -146,14 +147,14 @@ vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t
 
 vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_t num_prots,
                            int frame, double& elapsed_ms) {
-    string fwd = dna, rev = reverse_complement(dna);
+    const string rev = reverse_complement(dna);
     const size_t N = dna.length();
     vector<Hit> hits(num_prots);
 
     char *d_codon_aa, *d_codon_aa_r;
     checkCudaErrors(cudaMalloc(&d_codon_aa, N));
     checkCudaErrors(cudaMalloc(&d_codon_aa_r, N));
-    checkCudaErrors(cudaMemcpy(d_codon_aa, translate_each_position(fwd.data(), N).data(), N,
+    checkCudaErrors(cudaMemcpy(d_codon_aa, translate_each_position(dna.data(), N).data(), N,
                                cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_codon_aa_r, translate_each_position(rev.data(), N).data(), N,
                                cudaMemcpyHostToDevice));
@@ -169,32 +170,33 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
         const size_t n = N * M;
 
         HostMats h(n);
-        h.init(&fwd[0], &prot[0], N, M);
+        h.init(dna.data(), prot.data(), N, M);
         std::unique_ptr<HostMats> h_r;
         if (frame == 6) {
             h_r = std::make_unique<HostMats>(n);
-            h_r->init(&rev[0], &prot[0], N, M);
+            h_r->init(rev.data(), prot.data(), N, M);
         }
 
         char* d_protein_sequence;
         checkCudaErrors(cudaMalloc(&d_protein_sequence, M));
         checkCudaErrors(cudaMemcpy(d_protein_sequence, prot.data(), M, cudaMemcpyHostToDevice));
-        DeviceMats d(h, n);
+        const DeviceMats d(h, n);
         std::unique_ptr<DeviceMats> d_r;
         if (frame == 6)
             d_r = std::make_unique<DeviceMats>(*h_r, n);
 
-        dim3 blockDimMain(32, 32);
-        unsigned int submatrixSide = blockDimMain.y;
-        unsigned int numSubmatrixRows = ((unsigned int)N + submatrixSide - 1) / submatrixSide;
-        unsigned int numSubmatrixCols = ((unsigned int)M + submatrixSide - 1) / submatrixSide;
+        const dim3 blockDimMain(32, 32);
+        const unsigned int submatrixSide = blockDimMain.y;
+        const unsigned int numSubmatrixRows = ((unsigned int)N + submatrixSide - 1) / submatrixSide;
+        const unsigned int numSubmatrixCols = ((unsigned int)M + submatrixSide - 1) / submatrixSide;
 
         timer.Start();
         for (unsigned int diag = 0; diag < numSubmatrixRows + numSubmatrixCols - 1; ++diag) {
-            unsigned int first_sub_y_curr_diag =
+            const unsigned int first_sub_y_curr_diag =
                 std::max(0, (int)diag - (int)(numSubmatrixCols - 1));
-            unsigned int last_sub_y_curr_diag = std::min((int)diag, (int)numSubmatrixRows - 1);
-            dim3 currGridDim(last_sub_y_curr_diag - first_sub_y_curr_diag + 1, 1);
+            const unsigned int last_sub_y_curr_diag =
+                std::min((int)diag, (int)numSubmatrixRows - 1);
+            const dim3 currGridDim(last_sub_y_curr_diag - first_sub_y_curr_diag + 1, 1);
 
             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
                 d_codon_aa, d_protein_sequence, d.sc, d.ins, d.del, d.t_sc, d.t_ins, d.t_del,
