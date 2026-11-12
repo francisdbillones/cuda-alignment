@@ -16,7 +16,7 @@ static string prompt_file(const char* msg) {
     return file_name;
 }
 
-static int prompt_choice(const char* msg, int a, int b) {
+static int prompt_choice(const string& msg, int a, int b) {
     while (true) {
         int choice;
         cout << msg << endl << "--> ";
@@ -40,7 +40,7 @@ Options prompt_options() {
     } while (o.dnas.empty());
     o.mode = prompt_choice("Choose mode [0 - Sequential] [1 - CUDA]:", 0, 1);
     o.frame = prompt_choice("Choose frame count [3 - 3 Frame] [6 - 6 Frame]:", 3, 6);
-    o.top = prompt_choice("Show Score [0 - Top 1] [1 - Top 5]:", 0, 1);
+    o.top = prompt_choice("Show Score [0 - Top 1] [1 - Top " + std::to_string(TOP_N) + "]:", 0, 1);
     return o;
 }
 

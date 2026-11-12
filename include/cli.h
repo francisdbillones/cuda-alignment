@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+constexpr int TOP_N = 5;
+
 struct Alignment {
     std::string dna, prot, frameshift;
 };

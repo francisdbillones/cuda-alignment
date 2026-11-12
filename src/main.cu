@@ -34,12 +34,12 @@ struct Ranked {
     int prot = 0;
 };
 
-std::array<Ranked, 5> top5(const vector<Hit>& hits) {
-    std::array<Ranked, 5> top{};
+template <int N> std::array<Ranked, N> top_n(const vector<Hit>& hits) {
+    std::array<Ranked, N> top{};
     for (int p = 0; p < (int)hits.size(); p++) {
-        for (int x = 0; x < 5; x++) {
+        for (int x = 0; x < N; x++) {
             if (hits[p].score >= top[x].score) {
-                for (int y = 4; y > x; y--)
+                for (int y = N - 1; y > x; y--)
                     top[y] = top[y - 1];
                 top[x] = {hits[p].score, p};
                 break;
@@ -262,10 +262,10 @@ int main() {
                 hits_dump << index_dna << ' ' << p << ' ' << hits[p].score << ' ' << hits[p].i
                           << ' ' << hits[p].j << ' ' << hits[p].reverse << '\n';
 
-        const std::array<Ranked, 5> best = top5(hits);
+        const std::array<Ranked, TOP_N> best = top_n<TOP_N>(hits);
         string fwd = opt.dnas[index_dna], rev = reverse_complement(fwd);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < TOP_N; i++) {
             if (opt.top == 0 && best[i].score != best[0].score)
                 continue;
 
@@ -273,8 +273,9 @@ int main() {
             const bool use_reverse = hits[best[i].prot].reverse;
             string& dna = use_reverse ? rev : fwd;
 
-            // use cpu here, the cuda code is so long and we only have to iterate another 5 times
-            // its honestly worth it saving LOC and keeping code simple to run a couple ms slower
+            // use cpu here, the cuda code is so long and we only have to iterate another TOP_N
+            // times its honestly worth it saving LOC and keeping code simple to run a couple ms
+            // slower
             double elapsed;
             const Traceback t = trace_cpu(dna, prot, elapsed);
             print_hit(opt.prot_ids[best[i].prot], best[i].prot, dna, use_reverse, t.aln,
