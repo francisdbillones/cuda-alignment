@@ -9,19 +9,15 @@
 #define CUDA_ALIGNMENT_DATA_DIR "./data"
 #endif
 
-using std::cerr;
-using std::endl;
-using std::ifstream;
 using std::string;
-using std::vector;
 
-vector<string> read_fasta_sequences(const string& filename) {
-    ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
-    vector<string> sequences;
+std::vector<string> read_fasta_sequences(const string& filename) {
+    std::ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
+    std::vector<string> sequences;
     string line, sequence;
 
     if (!file) {
-        cerr << "Error: Unable to open file " << filename << endl;
+        std::cerr << "Error: Unable to open file " << filename << std::endl;
         return sequences;
     }
 
@@ -47,13 +43,13 @@ vector<string> read_fasta_sequences(const string& filename) {
     return sequences;
 }
 
-vector<string> read_fasta_ids(const string& filename) {
-    ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
-    vector<string> sequenceIDs;
+std::vector<string> read_fasta_ids(const string& filename) {
+    std::ifstream file(string(CUDA_ALIGNMENT_DATA_DIR "/") + filename + ".fasta");
+    std::vector<string> sequenceIDs;
     string line;
 
     if (!file) {
-        cerr << "Error: Unable to open file " << filename << endl;
+        std::cerr << "Error: Unable to open file " << filename << std::endl;
         return sequenceIDs;
     }
 

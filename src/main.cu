@@ -20,12 +20,8 @@
 #include "mats.cuh"
 #include "scoring.cuh"
 
-using std::milli;
-using std::min;
 using std::string;
 using std::vector;
-using std::chrono::duration;
-using std::chrono::steady_clock;
 
 struct Hit {
     int score = 0;
@@ -111,10 +107,11 @@ Hit better_strand(Hit fwd, Hit rev) {
 double run_cpu(string& dna, string& prot, HostMats& m) {
     const size_t N = dna.length(), M = prot.length() + 1;
     m.init(&dna[0], &prot[0], N, M);
-    const auto start = steady_clock::now();
+    const auto start = std::chrono::steady_clock::now();
     scoring_cpu(dna.data(), prot.data(), m.sc.get(), m.ins.get(), m.del.get(), m.t_sc.get(),
                 m.t_ins.get(), m.t_del.get(), N, M);
-    return duration<double, milli>(steady_clock::now() - start).count();
+    return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
+        .count();
 }
 
 Traceback trace_cpu(string& dna, string& prot, double& ms) {
@@ -241,7 +238,7 @@ int main() {
 
     const Options opt = prompt_options();
     double total_r = 0.0;
-    const size_t num_prots = min<size_t>(opt.prots.size(), 4096);
+    const size_t num_prots = std::min<size_t>(opt.prots.size(), 4096);
 
     // HITS_DUMP=path dumps
     // "read protein score i j reverse"

@@ -5,7 +5,6 @@
 #include "codon.cuh"
 #include "fasta.h"
 
-using std::cin;
 using std::cout;
 using std::endl;
 using std::string;
@@ -13,7 +12,7 @@ using std::string;
 static string prompt_file(const char* msg) {
     string file_name;
     cout << msg << endl << "--> ";
-    cin >> file_name;
+    std::cin >> file_name;
     return file_name;
 }
 
@@ -21,7 +20,7 @@ static int prompt_choice(const char* msg, int a, int b) {
     while (true) {
         int choice;
         cout << msg << endl << "--> ";
-        cin >> choice;
+        std::cin >> choice;
         if (choice == a || choice == b)
             return choice;
         cout << "Invalid input please try again." << endl;
