@@ -14,7 +14,7 @@ __host__ __device__ inline int place(const char a) {
 #else
     const int* table = prot_to_idx;
 #endif
-    return (a >= 0 && a < 128) ? table[static_cast<unsigned char>(a)] : -1;
+    return (a >= 0 && a < 128) ? table[static_cast<unsigned char>(a)] : table['X'];
 }
 
 __host__ __device__ inline int score(const char a, const char b) {

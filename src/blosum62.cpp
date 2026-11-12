@@ -16,7 +16,7 @@ int prot_to_idx[128];
 
 void initialize_protein_to_int_map() {
 
-    std::vector<int> host_map(128, -1);
+    std::vector<int> host_map(128, 22);
 
     host_map['A'] = 0;
     host_map['R'] = 1;
