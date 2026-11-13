@@ -1,5 +1,9 @@
 YouTube link for video pitch: https://youtu.be/tV8orLYLfi4
 
+YouTube link for midterm update: https://youtu.be/7j1b1YhDKds
+
+Midterm update PDF: https://github.com/francisdbillones/cuda-alignment/blob/main/proposal.pdf
+
 
 ## Building
 
