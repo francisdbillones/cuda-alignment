@@ -4,10 +4,10 @@ project(cuda_alignment
     DESCRIPTION "GPU-accelerated frameshift-aware DNA-to-protein local alignment"
     LANGUAGES CXX CUDA)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_EXTENSIONS OFF)
 
@@ -22,7 +22,7 @@ endif()
 set(CUDA_ALIGNMENT_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data" CACHE PATH
     "Directory containing BLOSUM62.txt and the input .fasta files")
 
-add_executable(cuda_alignment src/main.cu src/cli.cu src/blosum62.cpp src/fasta.cpp src/scoring.cu)
+add_executable(cuda_alignment src/main.cu src/cli.cu src/fasta.cpp src/scoring.cu)
 
 target_include_directories(cuda_alignment PRIVATE include)
 
