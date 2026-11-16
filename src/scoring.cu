@@ -26,7 +26,7 @@ __constant__ int c_shift = 4; // shift penalty
 void upload_blosum62_tables() {
     checkCudaErrors(cudaMemcpyToSymbol(d_blosum62mat, blosum62mat, sizeof(blosum62mat), 0,
                                        cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpyToSymbol(d_prot_to_idx, prot_to_idx, sizeof(prot_to_idx), 0,
+    checkCudaErrors(cudaMemcpyToSymbol(d_prot_to_idx, prot_to_idx.data(), sizeof(prot_to_idx), 0,
                                        cudaMemcpyHostToDevice));
 }
 

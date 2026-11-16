@@ -12,7 +12,7 @@ __host__ __device__ inline int place(const char a) {
 #ifdef __CUDA_ARCH__
     const int* table = d_prot_to_idx;
 #else
-    const int* table = prot_to_idx;
+    const int* table = prot_to_idx.data();
 #endif
     return (a >= 0 && a < 128) ? table[static_cast<unsigned char>(a)] : table['X'];
 }

@@ -234,8 +234,6 @@ int main() {
     checkCudaErrors(cudaGetDevice(&device));
     checkCudaErrors(cudaSetDevice(device));
 
-    read_blosum62();
-    initialize_protein_to_int_map();
     upload_blosum62_tables();
 
     const Options opt = prompt_options();
