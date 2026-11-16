@@ -30,8 +30,14 @@ void upload_blosum62_tables() {
                                        cudaMemcpyHostToDevice));
 }
 
-void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
-                  int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M) {
+void scoring_init(const std::string& input_seq, const std::string& ref_seq, HostMats& m) {
+    const size_t N = m.N, M = m.M;
+    int* const sc_mat = m.sc.get();
+    int* const ins_mat = m.ins.get();
+    int* const del_mat = m.del.get();
+    int* const t_sc_mat = m.t_sc.get();
+    int* const t_ins_mat = m.t_ins.get();
+    int* const t_del_mat = m.t_del.get();
     int insert = 0;
     int del = 0;
     int xscore = 0;
@@ -74,7 +80,7 @@ void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* 
         for (size_t j = 1; j < M; j++) {
             insert = ins_mat[i * M + (j - 1)] - gep;
             xscore = sc_mat[i * M + (j - 1)] - gop - gep;
-            prot_seq = translate_codon(input_seq + i - 1);
+            prot_seq = translate_codon(input_seq.data() + i - 1);
 
             if (insert > xscore) {
                 ins_mat[i * M + j] = insert;
@@ -125,8 +131,14 @@ void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* 
     }
 }
 
-void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
-                 int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M) {
+void scoring_cpu(const std::string& input_seq, const std::string& ref_seq, HostMats& m) {
+    const size_t N = m.N, M = m.M;
+    int* const sc_mat = m.sc.get();
+    int* const ins_mat = m.ins.get();
+    int* const del_mat = m.del.get();
+    int* const t_sc_mat = m.t_sc.get();
+    int* const t_ins_mat = m.t_ins.get();
+    int* const t_del_mat = m.t_del.get();
     int insert = 0;
     int del = 0;
     int xscore = 0;
@@ -135,7 +147,7 @@ void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* i
     char prot_seq;
 
     for (int i = 4; i < N; i++) {
-        prot_seq = translate_codon(input_seq + i - 1);
+        prot_seq = translate_codon(input_seq.data() + i - 1);
         for (int j = 1; j < M; j++) {
             scoring = score(prot_seq, ref_seq[j - 1]);
             insert = ins_mat[i * M + (j - 1)] - gep;

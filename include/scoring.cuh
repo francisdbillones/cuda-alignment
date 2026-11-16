@@ -3,8 +3,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include <cuda_runtime.h>
+
+#include "mats.cuh"
 
 enum Trace : std::int8_t {
     TRACE_INS = -2,
@@ -16,11 +19,9 @@ enum Trace : std::int8_t {
     TRACE_SHIFT_4 = 4,
 };
 
-void scoring_init(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
-                  int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);
+void scoring_init(const std::string& input_seq, const std::string& ref_seq, HostMats& m);
 
-void scoring_cpu(const char* input_seq, const char* ref_seq, int* sc_mat, int* ins_mat,
-                 int* del_mat, int* t_sc_mat, int* t_ins_mat, int* t_del_mat, size_t N, size_t M);
+void scoring_cpu(const std::string& input_seq, const std::string& ref_seq, HostMats& m);
 
 __global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __restrict__ ref_seq,
                              int* __restrict__ u_sc_mat, int* __restrict__ u_ins_mat,

@@ -7,25 +7,23 @@
 #include <cuda_runtime.h>
 
 #include "cuda_check.cuh"
-#include "scoring.cuh"
 
 struct HostMats {
+    size_t N, M;
     std::unique_ptr<int[]> sc, ins, del, t_sc, t_ins, t_del;
 
-    explicit HostMats(size_t n)
-        : sc(new int[n]), ins(new int[n]), del(new int[n]), t_sc(new int[n]), t_ins(new int[n]),
-          t_del(new int[n]) {}
+    HostMats(size_t N, size_t M)
+        : N(N), M(M), sc(new int[N * M]), ins(new int[N * M]), del(new int[N * M]),
+          t_sc(new int[N * M]), t_ins(new int[N * M]), t_del(new int[N * M]) {}
 
-    void init(const char* dna, const char* prot, size_t N, size_t M) {
-        scoring_init(dna, prot, sc.get(), ins.get(), del.get(), t_sc.get(), t_ins.get(),
-                     t_del.get(), N, M);
-    }
+    size_t size() const { return N * M; }
 };
 
 struct DeviceMats {
     int *sc, *ins, *del, *t_sc, *t_ins, *t_del;
 
-    DeviceMats(const HostMats& h, size_t n) {
+    explicit DeviceMats(const HostMats& h) {
+        const size_t n = h.size();
         int** const dst[] = {&sc, &ins, &del, &t_sc, &t_ins, &t_del};
         const int* src[] = {h.sc.get(),   h.ins.get(),   h.del.get(),
                             h.t_sc.get(), h.t_ins.get(), h.t_del.get()};

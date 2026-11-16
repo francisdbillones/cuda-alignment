@@ -78,8 +78,8 @@ struct Traceback {
     Alignment aln;
 };
 
-Traceback traceV2_1d_check(const char* input_seq, const char* ref_seq, const HostMats& m, size_t N,
-                           size_t M) {
+Traceback traceV2_1d_check(const char* input_seq, const char* ref_seq, const HostMats& m) {
+    const size_t N = m.N, M = m.M;
     const int* sc_mat = m.sc.get();
     const int* t_sc_mat = m.t_sc.get();
     const Hit best = best_cell(sc_mat, N, M);
@@ -106,20 +106,17 @@ Hit better_strand(Hit fwd, Hit rev) {
 }
 
 double run_cpu(string& dna, string& prot, HostMats& m) {
-    const size_t N = dna.length(), M = prot.length() + 1;
-    m.init(&dna[0], &prot[0], N, M);
+    scoring_init(dna, prot, m);
     const auto start = std::chrono::steady_clock::now();
-    scoring_cpu(dna.data(), prot.data(), m.sc.get(), m.ins.get(), m.del.get(), m.t_sc.get(),
-                m.t_ins.get(), m.t_del.get(), N, M);
+    scoring_cpu(dna, prot, m);
     return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
         .count();
 }
 
 Traceback trace_cpu(string& dna, string& prot, double& ms) {
-    const size_t N = dna.length(), M = prot.length() + 1;
-    HostMats m(N * M);
+    HostMats m(dna.length(), prot.length() + 1);
     ms = run_cpu(dna, prot, m);
-    return traceV2_1d_check(&dna[0], &prot[0], m, N, M);
+    return traceV2_1d_check(&dna[0], &prot[0], m);
 }
 
 vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t num_prots,
@@ -133,7 +130,7 @@ vector<Hit> score_all_cpu(const string& dna, const vector<string>& prots, size_t
         const size_t M = prot.length() + 1;
 
         const auto score_strand = [&](string& strand) {
-            HostMats m(N * M);
+            HostMats m(N, M);
             elapsed_ms += run_cpu(strand, prot, m);
             return best_cell(m.sc.get(), N, M);
         };
@@ -169,21 +166,21 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
         const size_t M = prot.length() + 1;
         const size_t n = N * M;
 
-        HostMats h(n);
-        h.init(dna.data(), prot.data(), N, M);
+        HostMats h(N, M);
+        scoring_init(dna, prot, h);
         std::unique_ptr<HostMats> h_r;
         if (frame == 6) {
-            h_r = std::make_unique<HostMats>(n);
-            h_r->init(rev.data(), prot.data(), N, M);
+            h_r = std::make_unique<HostMats>(N, M);
+            scoring_init(rev, prot, *h_r);
         }
 
         char* d_protein_sequence;
         checkCudaErrors(cudaMalloc(&d_protein_sequence, M));
         checkCudaErrors(cudaMemcpy(d_protein_sequence, prot.data(), M, cudaMemcpyHostToDevice));
-        const DeviceMats d(h, n);
+        const DeviceMats d(h);
         std::unique_ptr<DeviceMats> d_r;
         if (frame == 6)
-            d_r = std::make_unique<DeviceMats>(*h_r, n);
+            d_r = std::make_unique<DeviceMats>(*h_r);
 
         const dim3 blockDimMain(32, 32);
         const unsigned int submatrixSide = blockDimMain.y;
