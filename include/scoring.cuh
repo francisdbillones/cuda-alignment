@@ -24,11 +24,8 @@ void scoring_init(const std::string& input_seq, const std::string& ref_seq, Host
 void scoring_cpu(const std::string& input_seq, const std::string& ref_seq, HostMats& m);
 
 __global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __restrict__ ref_seq,
-                             int* __restrict__ u_sc_mat, int* __restrict__ u_ins_mat,
-                             int* __restrict__ u_del_mat, int* __restrict__ u_t_sc_mat,
-                             int* __restrict__ u_t_ins_mat, int* __restrict__ u_t_del_mat,
-                             unsigned int N, unsigned int M, unsigned int currDiag,
-                             unsigned int submatrixSide, unsigned int currDiagFirstSubY);
+                             DeviceMats m, unsigned int currDiag, unsigned int submatrixSide,
+                             unsigned int currDiagFirstSubY);
 
 void upload_blosum62_tables();
 

@@ -10,6 +10,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <memory>
+#include <optional>
 
 #include "blosum62.h"
 #include "cli.h"
@@ -178,9 +179,9 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
         checkCudaErrors(cudaMalloc(&d_protein_sequence, M));
         checkCudaErrors(cudaMemcpy(d_protein_sequence, prot.data(), M, cudaMemcpyHostToDevice));
         const DeviceMats d(h);
-        std::unique_ptr<DeviceMats> d_r;
+        std::optional<DeviceMats> d_r;
         if (frame == 6)
-            d_r = std::make_unique<DeviceMats>(*h_r);
+            d_r.emplace(*h_r);
 
         const dim3 blockDimMain(32, 32);
         const unsigned int submatrixSide = blockDimMain.y;
@@ -196,12 +197,10 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
             const dim3 currGridDim(last_sub_y_curr_diag - first_sub_y_curr_diag + 1, 1);
 
             scoring_cuda<<<currGridDim, blockDimMain, 0, stream1>>>(
-                d_codon_aa, d_protein_sequence, d.sc, d.ins, d.del, d.t_sc, d.t_ins, d.t_del,
-                (unsigned int)N, (unsigned int)M, diag, submatrixSide, first_sub_y_curr_diag);
+                d_codon_aa, d_protein_sequence, d, diag, submatrixSide, first_sub_y_curr_diag);
             if (d_r)
                 scoring_cuda<<<currGridDim, blockDimMain, 0, stream2>>>(
-                    d_codon_aa_r, d_protein_sequence, d_r->sc, d_r->ins, d_r->del, d_r->t_sc,
-                    d_r->t_ins, d_r->t_del, (unsigned int)N, (unsigned int)M, diag, submatrixSide,
+                    d_codon_aa_r, d_protein_sequence, *d_r, diag, submatrixSide,
                     first_sub_y_curr_diag);
         }
         checkCudaErrors(cudaStreamSynchronize(stream1));
@@ -216,6 +215,9 @@ vector<Hit> score_all_cuda(const string& dna, const vector<string>& prots, size_
                 cudaMemcpy(h_r->sc.get(), d_r->sc, n * sizeof(int), cudaMemcpyDeviceToHost));
             hits[p] = better_strand(hits[p], best_cell(h_r->sc.get(), N, M));
         }
+        d.free();
+        if (d_r)
+            d_r->free();
         checkCudaErrors(cudaFree(d_protein_sequence));
     }
 

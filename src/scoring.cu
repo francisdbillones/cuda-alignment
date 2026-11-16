@@ -201,11 +201,15 @@ void scoring_cpu(const std::string& input_seq, const std::string& ref_seq, HostM
 }
 
 __global__ void scoring_cuda(const char* __restrict__ codon_aa, const char* __restrict__ ref_seq,
-                             int* __restrict__ u_sc_mat, int* __restrict__ u_ins_mat,
-                             int* __restrict__ u_del_mat, int* __restrict__ u_t_sc_mat,
-                             int* __restrict__ u_t_ins_mat, int* __restrict__ u_t_del_mat,
-                             unsigned int N, unsigned int M, unsigned int currDiag,
-                             unsigned int submatrixSide, unsigned int currDiagFirstSubY) {
+                             DeviceMats m, unsigned int currDiag, unsigned int submatrixSide,
+                             unsigned int currDiagFirstSubY) {
+    int* __restrict__ const u_sc_mat = m.sc;
+    int* __restrict__ const u_ins_mat = m.ins;
+    int* __restrict__ const u_del_mat = m.del;
+    int* __restrict__ const u_t_sc_mat = m.t_sc;
+    int* __restrict__ const u_t_ins_mat = m.t_ins;
+    int* __restrict__ const u_t_del_mat = m.t_del;
+    const unsigned int N = m.N, M = m.M;
     const cg::thread_block block = cg::this_thread_block();
 
     const unsigned int diagBlockIdx = blockIdx.x;
